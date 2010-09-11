@@ -1,0 +1,19 @@
+<?php
+class states extends module {
+	function execute(){
+		$action = $_GET["action"];
+		switch ($action){
+			case "get":
+				$id = (int) $_GET["id"];
+				echo "Name: <input name='name' class='name' value=''/>";
+				break;
+		}
+	}
+
+	function init(){
+
+	}
+}
+?>
+
+  

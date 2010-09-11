@@ -1,0 +1,21 @@
+<?php
+define('http_server', "http://".$_SERVER["HTTP_HOST"]."/");
+define('rtmp_server', "rtmp://localhost/oflaDemo/");
+define('db', "conferences");
+define('dbserver', "localhost");
+define('dbuser', "root");
+define('dbpass', "<your_password>");
+define('sessiondb', "conferences");
+define('sessiondbserver', "localhost");
+define('sessiondbuser', "root");
+define('sessiondbpass', "<your_password>");
+define('default_language', "en");
+$gAPIMappings = array("http://bizbiz.ccss.cz/" => "ABQIAAAAwZeBcd2TT3Efw9-OgA8O6xSt0fKSs186gFslcdRQG8OZXpQdMxSSTyJOad_dD8WW91HUi9IQb4hHbw",
+		      "http://bizbiz.mooo.com/" => "ABQIAAAAwZeBcd2TT3Efw9-OgA8O6xSba7ZL6KlCgyjzOtK95k8FB4i7_xRnyZcIS_xNAGmRuNc0SAN06h3w7Q", 
+		      "http://localhost/bizbiz/" => "ABQIAAAAwZeBcd2TT3Efw9-OgA8O6xSNHNZB29WzhvhLBXIjwJyteYrO6hQrGcx97HJERqviox_SOkirmMES7g");
+define('gmap_key', isset($gAPIMappings[http_server]) ? $gAPIMappings[http_server] : "");
+define('debug_mode', false);
+define('bizbiz_path', "/var/www/htdocs/bizbiz/");
+define('red5_path', "/red5/");
+define('salt', 'sd736fdsifugyiu7%^&#%~ef');
+?>
