@@ -5,7 +5,15 @@ class states extends module {
 		switch ($action){
 			case "get":
 				$id = (int) $_GET["id"];
-				echo "Name: <input name='name' class='name' value=''/>";
+				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
+				$name = $["name"];
+				echo "<table>";
+				echo "<tr><td>Name: </td><td><input name='name' class='name' value='$name'/></td></tr>";
+				echo "<tr class='description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
+				echo "<tr class='info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
+				echo "<tr class='document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
+				echo "<tr class='video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
+				echo "</table>";
 				break;
 			case "add":
 				$x = (int) $_POST["x"];
@@ -27,6 +35,7 @@ class states extends module {
 				$id = (int) $_POST["id"];
 				$name = mysql_escape_string($_POST["name"]);
 				mysql_query("UPDATE states SET name='$name' WHERE id = $id");
+				break;
 			case "del":
 				$id = (int) $_POST["id"];
 				mysql_query("DELETE FROM states WHERE id = $id");

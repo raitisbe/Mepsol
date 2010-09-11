@@ -19,3 +19,7 @@ ul#icons li.selected{
 ul#icons li.dblselected{
 	border: 3px #3333AA solid;
 }
+
+.label{
+	font-family: Arial, Helvetica, sans-serif;
+}

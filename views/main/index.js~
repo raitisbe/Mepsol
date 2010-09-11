@@ -11,6 +11,7 @@ var active_popupFlag=true;
 var tool_permanent = false;
 var tool = "";
 var selected_feature = null;
+var AutoSizeAnchored = OpenLayers.Class(OpenLayers.Popup.Anchored, {'autoSize': true});
 
 $(document).ready(function() {
 	var maxExtent = new OpenLayers.Bounds(0, 0, 20037508.34, 20037508.34);
@@ -32,7 +33,6 @@ $(document).ready(function() {
 	$(document).keydown(function(e){
 		switch (e.which) {
 		case 46:
-			console.log(selected_feature);
 			if(selected_feature!=null){
 				$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
 				}});
@@ -48,12 +48,13 @@ $(document).ready(function() {
 function loadModel(){
 	$.ajax( { type : "GET", url : "./?pg=states&action=list", cache : false, dataType: "json", success : function(d){
 		$(d.states).each(function(){
-			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id));
+			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id, this));
 		});
+		addLabels(vector_layer);
 	}});
 }
 
-function createState(left, top, width, height, id){
+function createState(left, top, width, height, id, record){
 	var features = [];
 	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Bounds(left, top+height, left+width, top).toGeometry()));
 	features[0].from_lines = [];
@@ -61,6 +62,7 @@ function createState(left, top, width, height, id){
 	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
 	features[0].attributes.id = id;
 	features[0].attributes.type = "states";
+	features[0].attributes.record = record;
 	return features;
 }
 
@@ -92,13 +94,15 @@ function createLayers(){
 	map.addLayer(blyr);
 
 	//Create layers
+	//map.addLayer(new OpenLayers.Layer.Google("Google Satellite", { 'type': G_SATELLITE_MAP }));
 	connection_layer = new OpenLayers.Layer.Vector("Connecting lines");
-	vector_layer = new OpenLayers.Layer.Vector("Vectors");
+	vector_layer = new OpenLayers.Layer.Vector("Edgy things and text");
 	popup_layer = new OpenLayers.Layer("Popup");
 	//Add layers
 	map.addLayer(connection_layer);
 	map.addLayer(vector_layer);
 	map.addLayer(popup_layer);
+	
 	$('ul#icons li').hover(
 		function() { $(this).addClass('ui-state-hover'); }, 
 		function() { $(this).removeClass('ui-state-hover'); }
@@ -134,6 +138,7 @@ function setTool(which){
 }
 
 function featureSelected(feature){
+	last_feature_pos = feature.geometry.getBounds().toArray();
 	if(linking){
 		if(starting_feature==null){
 			starting_feature = feature;
@@ -158,7 +163,7 @@ function setupStateEditor(){
 }
 
 function updateState(){
-	$.ajax( { type : "POST", url : "?pg="+feature.attributes.type+"&action=upd", cache : false, data: {"id":feature.attributes.id, "name": $(".name").val()}, success : function(d){
+	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".name").val()}, success : function(d){
 	
 	}});
 }
@@ -174,11 +179,12 @@ function connectWithLine(feature1, feature2){
 
 function featureMoved(feature){
 	var bounds = feature.geometry.getBounds().toArray();
-	$.ajax( { type : "POST", url : "?pg="+feature.attributes.type+"&action=move", cache : false, data: {"id":feature.attributes.id, "x": bounds[0], "y": bounds[1], "w": bounds[2]-bounds[0], "h": bounds[3]-bounds[1]}, success : function(d){
-	}});
+	$.ajax( { type : "POST", url : "?pg="+feature.attributes.type+"&action=move", cache : false, data: {"id":feature.attributes.id, "x": bounds[0], "y": bounds[1], "w": bounds[2]-bounds[0], "h": bounds[3]-bounds[1]}});
 }
 
-function featureMove(feature){
+var last_feature_pos = null;
+
+function featureMove(feature, pix){
 	var  centroid = feature.geometry.getCentroid();
 	for ( var i in feature.from_lines)
 	{
@@ -190,7 +196,20 @@ function featureMove(feature){
 		var vs = feature.to_lines[i].geometry.getVertices(true);
 		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);
 	}
+	if(last_feature_pos != null){
+		var tmp = feature.geometry.getBounds().toArray();
+		if(tmp[0] - last_feature_pos[0]>10 || tmp[3] - last_feature_pos[3]){
+			if(active_popup)
+				map.removePopup(active_popup.popup);
+		}
+		var vs = feature.text_multiline.geometry.getVertices();
+		for ( var i in vs){
+			vs[i].move(tmp[0] - last_feature_pos[0], tmp[3] - last_feature_pos[3]);
+		}
+		vector_layer.redraw();
+	}
 	connection_layer.redraw();
+	last_feature_pos = feature.geometry.getBounds().toArray();
 }
 
 function map_click(e) {
@@ -219,9 +238,21 @@ function create_Popup(feature, html) {
 		f.closeBox = false;
 		f.popupClass = MaxSizeAnchoredBubble;
 		f.popup = f.createPopup(f.closeBox);
-		f.popup.opacity=0.9;
+		f.popup.opacity=0.95;
 		f.popup.backgroundColor="#BBCCFF";
 		map.addPopup(f.popup);
 		return(f);
 	} catch (ex) {}
+}
+
+
+function addLabels(layer){
+    for(var i in layer.features)
+    {
+        var objBounds = layer.features[i].geometry.getBounds().toArray();
+	var line = CanvasTextFunctions.draw(null, null, 15, objBounds[0],objBounds[3], layer.features[i].attributes.record.name);
+	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 2};
+	vector_layer.addFeatures(line);
+	layer.features[i].text_multiline = line;
+    }
 }

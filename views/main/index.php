@@ -9,6 +9,7 @@
 	<script type="text/javascript" src="js/jquery-ui-1.8.4.custom.min.js"></script>
 
 	<script src="./views/main/index.js"></script>
+	<script src="./views/main/drawtext.js"></script>
 </head>
 <body>
 	<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p> 
