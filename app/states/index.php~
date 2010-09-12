@@ -6,7 +6,7 @@ class states extends module {
 			case "get":
 				$id = (int) $_GET["id"];
 				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
-				$name = $["name"];
+				$name = $r["name"];
 				echo "<table>";
 				echo "<tr><td>Name: </td><td><input name='name' class='name' value='$name'/></td></tr>";
 				echo "<tr class='description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
@@ -20,7 +20,7 @@ class states extends module {
 				$y = (int) $_POST["y"];
 				$w = (int) $_POST["w"];
 				$h = (int) $_POST["h"];
-				mysql_query("INSERT INTO states(x, y, w, h) VALUES ($x, $y, $w, $h)");
+				mysql_query("INSERT INTO states(x, y, w, h, type) VALUES ($x, $y, $w, $h, 's')");
 				echo mysql_insert_id();
 				break;
 			case "move":
@@ -42,11 +42,15 @@ class states extends module {
 				echo mysql_error();
 				break;
 			case "list":
-				echo "{";
-				print_jason_records(false, "SELECT id, name, x, y, w, h FROM states", "states");
-				echo "}";
+				$this->lists();
 				break;
 		}
+	}
+
+	function lists(){
+		echo "{";
+		print_jason_records(false, "SELECT id, name, x, y, w, h, type FROM states WHERE type='s' OR type IS NULL", "states");
+		echo "}";
 	}
 
 	function init(){

@@ -46,9 +46,23 @@ $(document).ready(function() {
 })
 
 function loadModel(){
-	$.ajax( { type : "GET", url : "./?pg=states&action=list", cache : false, dataType: "json", success : function(d){
-		$(d.states).each(function(){
+	$.ajax( { type : "GET", url : "./?pg=service&action=list_contents", cache : false, dataType: "json", success : function(d){
+		$(d[0].states).each(function(){
 			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id, this));
+		});
+		$(d[1].decisions).each(function(){
+			vector_layer.addFeatures(createDecision(this.x, this.y, this.w, this.h, this.id, this));
+		});
+		$(d[2].connections).each(function(){
+			for(var i in vector_layer.features){
+				if(vector_layer.features[i].attributes.record.id==this.id1){
+					for(var ii in vector_layer.features){
+						if(vector_layer.features[ii].attributes.record.id==this.id2){
+							connectWithLine(vector_layer.features[i], vector_layer.features[ii]);
+						}
+					}
+				}
+			}
 		});
 		addLabels(vector_layer);
 	}});
@@ -143,6 +157,8 @@ function featureSelected(feature){
 		if(starting_feature==null){
 			starting_feature = feature;
 		} else {
+			$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": feature1.attributes.record.id, "id2": feature2.attributes.record.id}, success : function(d){
+			}});
 			connectWithLine(starting_feature, feature);
 			linking = false;
 		}
@@ -220,7 +236,9 @@ function map_click(e) {
 		}});
 	}
 	if(tool=="decision"){
-		vector_layer.addFeatures(createDecision(pos.lon-60, pos.lat-20, 140, 100));
+		$.ajax( { type : "POST", url : "?pg=decisions&action=add", cache : false, data: {"x": pos.lon-60, "y": pos.lat-20, "w": 140, "h": 100}, success : function(d){
+			vector_layer.addFeatures(createDecision(pos.lon-60, pos.lat-20, 140, 100));
+		}});
 	}
 }
 

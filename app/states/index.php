@@ -20,7 +20,7 @@ class states extends module {
 				$y = (int) $_POST["y"];
 				$w = (int) $_POST["w"];
 				$h = (int) $_POST["h"];
-				mysql_query("INSERT INTO states(x, y, w, h) VALUES ($x, $y, $w, $h)");
+				mysql_query("INSERT INTO states(x, y, w, h, type) VALUES ($x, $y, $w, $h, 's')");
 				echo mysql_insert_id();
 				break;
 			case "move":
@@ -42,11 +42,15 @@ class states extends module {
 				echo mysql_error();
 				break;
 			case "list":
-				echo "{";
-				print_jason_records(false, "SELECT id, name, x, y, w, h FROM states", "states");
-				echo "}";
+				$this->lists();
 				break;
 		}
+	}
+
+	function lists(){
+		echo "{";
+		print_jason_records(false, "SELECT id, name, x, y, w, h, type FROM states WHERE type='s' OR type=''", "states");
+		echo "}";
 	}
 
 	function init(){
