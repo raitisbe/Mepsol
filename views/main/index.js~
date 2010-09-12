@@ -51,13 +51,13 @@ function loadModel(){
 			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id, this));
 		});
 		$(d[1].decisions).each(function(){
-			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id, this));
+			vector_layer.addFeatures(createDecision(this.x, this.y, this.w, this.h, this.id, this));
 		});
 		$(d[2].connections).each(function(){
 			for(var i in vector_layer.features){
-				if(vector_layer.features[i].attributes.record.id==this.id1){
+				if(vector_layer.features[i].attributes.id==this.id1){
 					for(var ii in vector_layer.features){
-						if(vector_layer.features[ii].attributes.record.id==this.id2){
+						if(vector_layer.features[ii].attributes.id==this.id2){
 							connectWithLine(vector_layer.features[i], vector_layer.features[ii]);
 						}
 					}
@@ -74,19 +74,17 @@ function createState(left, top, width, height, id, record){
 	features[0].from_lines = [];
 	features[0].to_lines = [];
 	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
-	features[0].attributes.id = id;
-	features[0].attributes.type = "states";
-	features[0].attributes.record = record;
+	features[0].attributes={id: id, "type" : "states", record : record};
 	return features;
 }
 
-function createDecision(left, top, width, height, id){
+function createDecision(left, top, width, height, id, record){
 	var features = [];
 	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(left, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top+height), new OpenLayers.Geometry.Point(left+width, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top)])));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
 	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
-	features[0].attributes.type = "decisions";
+	features[0].attributes={id: id, "type" : "decisions", record : record};
 	return features;
 }
 
@@ -157,7 +155,7 @@ function featureSelected(feature){
 		if(starting_feature==null){
 			starting_feature = feature;
 		} else {
-			$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": feature1.attributes.record.id, "id2": feature2.attributes.record.id}, success : function(d){
+			$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 			}});
 			connectWithLine(starting_feature, feature);
 			linking = false;
@@ -237,7 +235,7 @@ function map_click(e) {
 	}
 	if(tool=="decision"){
 		$.ajax( { type : "POST", url : "?pg=decisions&action=add", cache : false, data: {"x": pos.lon-60, "y": pos.lat-20, "w": 140, "h": 100}, success : function(d){
-			vector_layer.addFeatures(createDecision(pos.lon-60, pos.lat-20, 140, 100));
+			vector_layer.addFeatures(createDecision(pos.lon-60, pos.lat-20, 140, 100, d));
 		}});
 	}
 }
@@ -253,7 +251,7 @@ function create_Popup(feature, html) {
 		var ll  = new OpenLayers.LonLat(x, y);
 		var data = {'popupContentHTML' : theHTML,'overflow' : "auto"}
 		var f = new OpenLayers.Feature(popup_layer, ll, data);
-		f.closeBox = false;
+		f.closeBox = true;
 		f.popupClass = MaxSizeAnchoredBubble;
 		f.popup = f.createPopup(f.closeBox);
 		f.popup.opacity=0.95;
@@ -268,7 +266,11 @@ function addLabels(layer){
     for(var i in layer.features)
     {
         var objBounds = layer.features[i].geometry.getBounds().toArray();
-	var line = CanvasTextFunctions.draw(null, null, 15, objBounds[0],objBounds[3], layer.features[i].attributes.record.name);
+	var line = null;
+	if(layer.features[i].attributes.type =="states")
+		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0], objBounds[3], layer.features[i].attributes.record.name);
+	else if(layer.features[i].attributes.type =="decisions")
+		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0]+15, objBounds[3]-35, layer.features[i].attributes.record.name);
 	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 2};
 	vector_layer.addFeatures(line);
 	layer.features[i].text_multiline = line;

@@ -8,12 +8,13 @@ class states extends module {
 				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
 				$name = $r["name"];
 				echo "<table>";
-				echo "<tr><td>Name: </td><td><input name='name' class='name' value='$name'/></td></tr>";
-				echo "<tr class='description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
-				echo "<tr class='info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
-				echo "<tr class='document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
-				echo "<tr class='video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
+				echo "<tr class='state_name'><td>Name: </td><td><input name='name' value='$name'/></td></tr>";
+				echo "<tr class='state_description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
+				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
+				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
+				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
 				echo "</table>";
+				echo "<button class='save_state'>Save</button>";
 				break;
 			case "add":
 				$x = (int) $_POST["x"];

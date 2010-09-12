@@ -8,11 +8,14 @@ class decisions extends module {
 				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
 				$name = $r["name"];
 				echo "<table>";
-				echo "<tr><td>Name: </td><td><input name='name' class='name' value='$name'/></td></tr>";
-				echo "<tr class='description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
-				echo "<tr class='info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
-				echo "<tr class='document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
-				echo "<tr class='video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
+				echo "<tr class='decision_name'><td>Name: </td><td><input name='name' value='$name'/></td></tr>";
+				echo "<tr class='decision_description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
+				echo "<tr class='decision_type'><td>Decide by: </td><td><select class='decision_type'><option value='Variable'>Variable</option><option value='Input'>User input</option></select></td></tr>";
+				echo "<tr class='decision_question'><td>Question: </td><td><input name='decision_question' value=''/></td></tr>";
+				echo "<tr class='decision_variable'><td>Variable: </td><td><select></select></td></tr>";
+				echo "<tr class='decision_input_type'><td>Input type: </td><td><select class='decision_input_type'><option value='DropDown'>DropDown</option><option value='Text'>Text</option></select></td></tr>";
+				echo "<tr class='decision_store'><td>Store answer in: </td><td><select class='decision_store_in'><option>Dont store</option><option>New variable</option></select></td></tr>";
+				echo "<tr class='decision_decisions'><td>Decisions: </td><td><table><tr><th>Condition<th><th>Consequence<th></tr></table></td></tr>";
 				echo "</table>";
 				break;
 			case "add":
@@ -49,7 +52,7 @@ class decisions extends module {
 
 	function lists(){
 		echo "{";
-		print_jason_records(false, "SELECT id, name, x, y, w, h, type FROM states WHERE type='d'", "states");
+		print_jason_records(false, "SELECT id, name, x, y, w, h, type FROM states WHERE type='d'", "decisions");
 		echo "}";
 	}
 
