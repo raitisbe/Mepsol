@@ -8,7 +8,7 @@ class states extends module {
 				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
 				$name = $r["name"];
 				echo "<table>";
-				echo "<tr class='state_name'><td>Name: </td><td><input name='name' value='$name'/></td></tr>";
+				echo "<tr class='state_name'><td>Name: </td><td><input name='name' class='first_input' value='$name'/></td></tr>";
 				echo "<tr class='state_description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
 				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
 				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value=''/></td></tr>";

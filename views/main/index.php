@@ -7,7 +7,6 @@
 	<script src="./libs/jquery/js/jquery-1.4.2.min.js"></script>
 	<link type="text/css" href="./libs/jquery/css/ui-lightness/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
 	<script type="text/javascript" src="js/jquery-ui-1.8.4.custom.min.js"></script>
-
 	<script src="./views/main/index.js"></script>
 	<script src="./views/main/drawtext.js"></script>
 </head>

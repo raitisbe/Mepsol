@@ -10,8 +10,6 @@
 
 	<script src="./views/main/index.js"></script>
 	<script src="./views/main/drawtext.js"></script>
-<script src='http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAAl9RMqSzhPUXAfeBCXOussRTQDbvAygy0cfGJr8dEMAYKf3RWNBQqP9mjKIsqTfmAlz5LOJ3Xpy5s4w'></script>
-
 </head>
 <body>
 	<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p> 

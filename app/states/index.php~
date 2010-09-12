@@ -14,6 +14,7 @@ class states extends module {
 				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
 				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
 				echo "</table>";
+				echo "<button class='save_state'>Save</button>";
 				break;
 			case "add":
 				$x = (int) $_POST["x"];

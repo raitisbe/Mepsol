@@ -161,25 +161,36 @@ function featureSelected(feature){
 			linking = false;
 		}
 	} else {
-		selected_feature = feature;
-		if(active_popup)
-			map.removePopup(active_popup.popup);
-		var cur_feature_type = feature.attributes.type;
-		$.ajax( { type : "GET", url : "./?pg="+cur_feature_type+"&action=get&id="+feature.attributes.id, cache : false, success : function(d){
-			active_popup = create_Popup(feature, d);
-			setupStateEditor();
-		}});
+		editFeature(feature);
 	}
 }
 
+function editFeature(feature){
+	selected_feature = feature;
+	if(active_popup)
+		map.removePopup(active_popup.popup);
+	$.ajax( { type : "GET", url : "./?pg="+feature.attributes.type+"&action=get&id="+feature.attributes.id, cache : false, success : function(d){
+		active_popup = create_Popup(feature, d);
+		setupStateEditor();
+		$(".first_input").focus();
+	}});
+}
+
 function setupStateEditor(){
-	$(".name").change(updateState)
+	$(".state_name input").change(updateState)
 }
 
 function updateState(){
-	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".name").val()}, success : function(d){
+	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".state_name input").val()}, success : function(d){
 	
 	}});
+	if(selected_feature.attributes.record==undefined){
+		selected_feature.attributes.record = {};
+	}
+	selected_feature.attributes.record.name = $(".state_name input").val();
+	if(selected_feature.text_multiline!=undefined) selected_feature.text_multiline.destroy();
+	addLabel(selected_feature);
+	vector_layer.redraw();
 }
 
 function connectWithLine(feature1, feature2){
@@ -230,12 +241,16 @@ function map_click(e) {
 	var pos = map.getLonLatFromViewPortPx(e.xy);
 	if(tool=="state"){
 		$.ajax( { type : "POST", url : "?pg=states&action=add", cache : false, data: {"x": pos.lon-60, "y": pos.lat-20, "w": 120, "h": 40}, success : function(d){
-			vector_layer.addFeatures(createState(pos.lon-60, pos.lat-20, 120, 40, d));;
+			var features = createState(pos.lon-60, pos.lat-20, 120, 40, d);
+			vector_layer.addFeatures(features);
+			editFeature(features[0]);
 		}});
 	}
 	if(tool=="decision"){
 		$.ajax( { type : "POST", url : "?pg=decisions&action=add", cache : false, data: {"x": pos.lon-60, "y": pos.lat-20, "w": 140, "h": 100}, success : function(d){
-			vector_layer.addFeatures(createDecision(pos.lon-60, pos.lat-20, 140, 100, d));
+			var features = createDecision(pos.lon-60, pos.lat-20, 140, 100, d);
+			vector_layer.addFeatures(features);
+			editFeature(features[0]);
 		}});
 	}
 }
@@ -263,16 +278,20 @@ function create_Popup(feature, html) {
 
 
 function addLabels(layer){
-    for(var i in layer.features)
-    {
-        var objBounds = layer.features[i].geometry.getBounds().toArray();
+	for(var i in layer.features)
+	{
+		addLabel(layer.features[i]);
+	}
+}
+
+function addLabel(feature){
+	var objBounds = feature.geometry.getBounds().toArray();
 	var line = null;
-	if(layer.features[i].attributes.type =="states")
-		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0], objBounds[3], layer.features[i].attributes.record.name);
-	else if(layer.features[i].attributes.type =="decisions")
-		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0]+15, objBounds[3]-35, layer.features[i].attributes.record.name);
-	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 2};
+	if(feature.attributes.type =="states")
+		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0], objBounds[3], feature.attributes.record.name);
+	else if(feature.attributes.type =="decisions")
+		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0]+15, objBounds[3]-35, feature.attributes.record.name);
+	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 1};
 	vector_layer.addFeatures(line);
-	layer.features[i].text_multiline = line;
-    }
+	feature.text_multiline = line;
 }
