@@ -1,18 +1,23 @@
 <?php
 class states extends module {
+	public $language = "";
 	function execute(){
 		$action = $_GET["action"];
 		switch ($action){
 			case "get":
 				$id = (int) $_GET["id"];
-				$r = mysql_fetch_assoc(mysql_query("SELECT * FROM states WHERE id = $id"));
+				$r = mysql_fetch_assoc(mysql_query("SELECT name, ".build_field_list(array("description", "info", "document", "video_link"), $this->language)." FROM states WHERE id = $id"));
 				$name = $r["name"];
+				$description = $r["description"];
+				$info = $r["info"];
+				$document = $r["document"];
+				$video_link = $r["video_link"];
 				echo "<table>";
 				echo "<tr class='state_name'><td>Name: </td><td><input name='name' class='first_input' value='$name'/></td></tr>";
-				echo "<tr class='state_description'><td>Description: </td><td><input name='description' value=''/></td></tr>";
-				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value=''/></td></tr>";
-				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value=''/></td></tr>";
-				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value=''/></td></tr>";
+				echo "<tr class='state_description'><td>Description: </td><td><input name='description' value='$description'/></td></tr>";
+				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value='$info'/></td></tr>";
+				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value='$document'/></td></tr>";
+				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value='$video_link'/></td></tr>";
 				echo "</table>";
 				echo "<button class='save_state'>Save</button>";
 				break;
@@ -35,7 +40,7 @@ class states extends module {
 			case "upd":
 				$id = (int) $_POST["id"];
 				$name = mysql_escape_string($_POST["name"]);
-				mysql_query("UPDATE states SET name='$name' WHERE id = $id");
+				mysql_query("UPDATE states SET name='$name', ".build_upd_field_list(array("description", "info", "document", "video_link"), $this->language)." WHERE id = $id");
 				break;
 			case "del":
 				$id = (int) $_POST["id"];
@@ -50,12 +55,12 @@ class states extends module {
 
 	function lists(){
 		echo "{";
-		print_jason_records(false, "SELECT id, name, x, y, w, h, type FROM states WHERE type='s' OR type=''", "states");
+		print_jason_records(false, "SELECT id, name AS name, x, y, w, h, type FROM states WHERE type='s' OR type=''", "states");
 		echo "}";
 	}
 
 	function init(){
-
+		$this->language = isset($_SESSION["language"]) ? $_SESSION["language"] : "en";
 	}
 }
 ?>

@@ -167,30 +167,71 @@ function featureSelected(feature){
 
 function editFeature(feature){
 	selected_feature = feature;
-	if(active_popup)
+	if(active_popup){
 		map.removePopup(active_popup.popup);
+	}
 	$.ajax( { type : "GET", url : "./?pg="+feature.attributes.type+"&action=get&id="+feature.attributes.id, cache : false, success : function(d){
-		active_popup = create_Popup(feature, d);
-		setupStateEditor();
+	active_popup = create_Popup(feature, d);
+		if(feature.attributes.type=="states")
+			setupStateEditor();
+		if(feature.attributes.type=="decisions")
+			setupDecisionEditor();
 		$(".first_input").focus();
 	}});
 }
 
 function setupStateEditor(){
-	$(".state_name input").change(updateState)
+	$(".state_name input").change(updateState);
+	$(".save_state").click(updateState);
+}
+
+function setupDecisionEditor(){
+	$(".decision_name input").change(updateDecision);
+	$(".save_decision").click(updateDecision);
+	$("select.decision_type").change(function(){
+		var selected_type = $("select.decision_type option:selected").val();
+		$(".decision_question").toggle(selected_type == "Input");
+		$(".decision_variable").toggle(selected_type == "Variable");
+		$(".decision_input_type").toggle(selected_type == "Input");
+		$(".decision_store").toggle(selected_type == "Input");
+	});
+	$("select.decision_type").change();
 }
 
 function updateState(){
-	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".state_name input").val()}, success : function(d){
-	
-	}});
+	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".state_name input").val(), "description": $(".state_description input").val(), "info": $(".state_info input").val(), "document": $(".state_document input").val(), "video_link": $(".state_video_link input").val()}, success : function(d){}});
 	if(selected_feature.attributes.record==undefined){
 		selected_feature.attributes.record = {};
 	}
 	selected_feature.attributes.record.name = $(".state_name input").val();
-	if(selected_feature.text_multiline!=undefined) selected_feature.text_multiline.destroy();
-	addLabel(selected_feature);
+	recreateLabel(selected_feature);
+}
+
+function recreateLabel(feature){
+	if(feature.text_multiline!=undefined) feature.text_multiline.destroy();
+	addLabel(feature);
 	vector_layer.redraw();
+}
+
+function getConditionMatrix(){
+	var conditions = [];
+	$(".decision_condition").each(function(){
+		var condition = $(".condition", $(this)).val();
+		console.log($(".outcome", $(this)));
+		console.log($("option:selected", $(".outcome", $(this))));
+		var outcome = $("option:selected", $(".outcome", $(this))).val();
+		conditions.push({"condition":condition, "outcome":outcome});
+	});
+	return conditions;
+}
+
+function updateDecision(){
+	$.ajax( { type : "POST", url : "?pg=decisions&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".decision_name input").val(), "description": $(".decision_description input").val(), "question": $(".decision_question input").val(), "checked": ($(".decision_start:checked").length>0 ? "checked" : ""), "conditions":getConditionMatrix()}, success : function(d){}});
+	if(selected_feature.attributes.record==undefined){
+		selected_feature.attributes.record = {};
+	}
+	selected_feature.attributes.record.name = $(".decision_name input").val();
+	recreateLabel(selected_feature);
 }
 
 function connectWithLine(feature1, feature2){
@@ -291,7 +332,7 @@ function addLabel(feature){
 		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0], objBounds[3], feature.attributes.record.name);
 	else if(feature.attributes.type =="decisions")
 		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0]+15, objBounds[3]-35, feature.attributes.record.name);
-	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 2};
+	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 1};
 	vector_layer.addFeatures(line);
 	feature.text_multiline = line;
 }

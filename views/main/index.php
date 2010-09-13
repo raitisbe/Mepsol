@@ -12,7 +12,7 @@
 </head>
 <body>
 	<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p> 
-
+	<select id="language" title="Language"><option>en</option><option>gr</option><option>lv</option></select>
 	<ul id="icons" class="ui-widget ui-helper-clearfix">
 		<li title="Select" id="tool_select" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-carat-1-nw"></span>
@@ -28,8 +28,12 @@
 		<li title="Link" id="tool_link" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-link"></span>
 		</li>
-		<li title="Cut" id="tool_unlink" class="ui-state-default ui-corner-all">
+		<li title="Cut link" id="tool_unlink" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-scissors"></span>
+		</li>
+		<li class="ui-state-default ui-corner-all"></li>
+		<li title="Execute Dialog" id="tool_play" class="ui-state-default ui-corner-all">
+			<span class="ui-icon ui-icon-play"></span>
 		</li>
 	</ul>
 	<div id="map"></div>

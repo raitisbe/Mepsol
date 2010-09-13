@@ -360,5 +360,20 @@ function rrmdir($dir) {
      reset($objects);
      rmdir($dir);
    }
- } 
+ }
+
+function build_field_list($fields, $language){
+	for($i=0; $i<sizeof($fields); $i++){
+		$fields[$i] .= "_".$language." AS ".$fields[$i];
+	}
+	return join(",", $fields);
+}
+
+function build_upd_field_list($fields, $language){
+	for($i=0; $i<sizeof($fields); $i++){
+		$fields[$i] .= "_".$language." = '".mysql_escape_string($_POST[$fields[$i]]);
+	}
+	return join(",", $fields);
+}
+
 ?>

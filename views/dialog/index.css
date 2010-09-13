@@ -1,11 +1,7 @@
-#map{position: absolute; left: 5px; top: 150px; right: 5px; bottom: 5px; border: 1px #bbbbbb solid;}
+#map{position: absolute; left: 5px; top: 150px; width:30%; bottom: 5px; border: 1px #bbbbbb solid;}
 
 #title{font-family: Arial, Helvetica, sans-serif; font-size: 180%; color: #dddddd; padding: 5px; background-color: #1a82f7; background: url(images/linear_bg_2.png); background: -moz-linear-gradient(100% 100% 90deg, #2F2727, #1a82f7); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1a82f7), to(#2F2727));}
 #title b{font-size: 190%}
-
-ul#icons {margin: 0; padding: 0;}
-ul#icons li {margin: 2px; position: relative; padding: 4px 0; cursor: pointer; float: left;  list-style: none;}
-ul#icons span.ui-icon {float: left; margin: 0 4px;}
 
 .popupframe{width: 400px; height: 400px;}
 
