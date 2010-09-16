@@ -371,7 +371,7 @@ function build_field_list($fields, $language){
 
 function build_upd_field_list($fields, $language){
 	for($i=0; $i<sizeof($fields); $i++){
-		$fields[$i] .= "_".$language." = '".mysql_escape_string($_POST[$fields[$i]]);
+		$fields[$i] .= "_".$language." = '".mysql_escape_string($_POST[$fields[$i]])."'";
 	}
 	return join(",", $fields);
 }

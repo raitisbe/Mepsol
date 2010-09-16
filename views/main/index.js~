@@ -22,13 +22,15 @@ $(document).ready(function() {
 	createDraggers();
 	//map.zoomToMaxExtent();
 	map.events.register("click", map, map_click);
-	var centerPoint = new OpenLayers.LonLat(0,0);
+	var centerPoint = new OpenLayers.LonLat(10000000,10000000);
 	map.setCenter(centerPoint, 18);
 	$("#tool_select").click(activateSelectors);
 	$("#tool_link").click(activateLinker);
 	$("#tool_state").click(function(){setTool("state")});
 	$("#tool_select").click();
 	$("#tool_decision").click(function(){setTool("decision")});
+	$("#tool_edit").click(editService);
+	$("#tool_play").click(playService);
 	loadModel();
 	$(document).keydown(function(e){
 		switch (e.which) {
@@ -45,13 +47,25 @@ $(document).ready(function() {
 	})
 })
 
+function playService(){
+	tb_show("Execute dialog", $(this).attr("href")+"&amp;TB_iframe=true&amp;height=600&amp;width=900", null);
+}
+
+function editService(){
+	tb_show("Edit service description", $(this).attr("href")+"&amp;TB_iframe=true&amp;height=350&amp;width=400", null);
+}
+
 function loadModel(){
 	$.ajax( { type : "GET", url : "./?pg=service&action=list_contents", cache : false, dataType: "json", success : function(d){
 		$(d[0].states).each(function(){
-			vector_layer.addFeatures(createState(this.x, this.y, this.w, this.h, this.id, this));
+			var features = createState(this.x, this.y, this.w, this.h, this.id, this);
+			vector_layer.addFeatures(features);
+			addLabel(features[0]);
 		});
 		$(d[1].decisions).each(function(){
-			vector_layer.addFeatures(createDecision(this.x, this.y, this.w, this.h, this.id, this));
+			var features = createDecision(this.x, this.y, this.w, this.h, this.id, this);
+			vector_layer.addFeatures(features);	
+			addLabel(features[0]);
 		});
 		$(d[2].connections).each(function(){
 			for(var i in vector_layer.features){
@@ -64,7 +78,6 @@ function loadModel(){
 				}
 			}
 		});
-		addLabels(vector_layer);
 	}});
 }
 
@@ -199,7 +212,7 @@ function setupDecisionEditor(){
 }
 
 function updateState(){
-	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".state_name input").val(), "description": $(".state_description input").val(), "info": $(".state_info input").val(), "document": $(".state_document input").val(), "video_link": $(".state_video_link input").val()}, success : function(d){}});
+	$.ajax( { type : "POST", url : "?pg=states&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".state_name input").val(), "description": $(".state_description input").val(), "info": $(".state_info input").val(), "document": $(".state_document input").val(), "video_link": $(".state_video_link input").val(), "checked": ($(".decision_start:checked").length>0 ? "checked" : "")}, success : function(d){}});
 	if(selected_feature.attributes.record==undefined){
 		selected_feature.attributes.record = {};
 	}
@@ -217,16 +230,14 @@ function getConditionMatrix(){
 	var conditions = [];
 	$(".decision_condition").each(function(){
 		var condition = $(".condition", $(this)).val();
-		console.log($(".outcome", $(this)));
-		console.log($("option:selected", $(".outcome", $(this))));
-		var outcome = $("option:selected", $(".outcome", $(this))).val();
+		var outcome = $(".outcome option:selected", $(this)).val();
 		conditions.push({"condition":condition, "outcome":outcome});
 	});
 	return conditions;
 }
 
 function updateDecision(){
-	$.ajax( { type : "POST", url : "?pg=decisions&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".decision_name input").val(), "description": $(".decision_description input").val(), "question": $(".decision_question input").val(), "checked": ($(".decision_start:checked").length>0 ? "checked" : ""), "conditions":getConditionMatrix()}, success : function(d){}});
+	$.ajax( { type : "POST", url : "?pg=decisions&action=upd", cache : false, data: {"id":selected_feature.attributes.id, "name": $(".decision_name input").val(), "description": $(".decision_description input").val(), "question": $(".decision_question input").val(), "decision_type":$(".decision_type option:selected").val(), "input_type":$(".decision_input_type option:selected").val(), "checked": ($(".decision_start:checked").length>0 ? "checked" : ""), "conditions":getConditionMatrix()}, success : function(d){}});
 	if(selected_feature.attributes.record==undefined){
 		selected_feature.attributes.record = {};
 	}
@@ -248,8 +259,6 @@ function featureMoved(feature){
 	$.ajax( { type : "POST", url : "?pg="+feature.attributes.type+"&action=move", cache : false, data: {"id":feature.attributes.id, "x": bounds[0], "y": bounds[1], "w": bounds[2]-bounds[0], "h": bounds[3]-bounds[1]}});
 }
 
-var last_feature_pos = null;
-
 function featureMove(feature, pix){
 	var  centroid = feature.geometry.getCentroid();
 	for ( var i in feature.from_lines)
@@ -262,20 +271,22 @@ function featureMove(feature, pix){
 		var vs = feature.to_lines[i].geometry.getVertices(true);
 		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);
 	}
-	if(last_feature_pos != null){
+	if(feature.text_multiline.geometry.getBounds() != null){
 		var tmp = feature.geometry.getBounds().toArray();
 		if(tmp[0] - last_feature_pos[0]>10 || tmp[3] - last_feature_pos[3]){
 			if(active_popup)
 				map.removePopup(active_popup.popup);
 		}
 		var vs = feature.text_multiline.geometry.getVertices();
+		var vb = feature.text_multiline.geometry.getBounds().toArray();
+		var xdif= tmp[0] - vb[0] + ((tmp[2]-tmp[0]) - (vb[2]-vb[0]))/2;
+		var ydif = tmp[3] - vb[3] + ((tmp[1]-tmp[3]) - (vb[1]-vb[3]))/2;
 		for ( var i in vs){
-			vs[i].move(tmp[0] - last_feature_pos[0], tmp[3] - last_feature_pos[3]);
+			vs[i].move(xdif,ydif);
 		}
 		vector_layer.redraw();
 	}
 	connection_layer.redraw();
-	last_feature_pos = feature.geometry.getBounds().toArray();
 }
 
 function map_click(e) {
@@ -317,22 +328,15 @@ function create_Popup(feature, html) {
 	} catch (ex) {}
 }
 
-
-function addLabels(layer){
-	for(var i in layer.features)
-	{
-		addLabel(layer.features[i]);
-	}
-}
-
 function addLabel(feature){
+	if(feature.attributes.record==undefined) return;
 	var objBounds = feature.geometry.getBounds().toArray();
 	var line = null;
 	if(feature.attributes.type =="states")
 		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0], objBounds[3], feature.attributes.record.name);
 	else if(feature.attributes.type =="decisions")
 		line = CanvasTextFunctions.draw(null, null, 15, objBounds[0]+15, objBounds[3]-35, feature.attributes.record.name);
-	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 1};
-	vector_layer.addFeatures(line);
+	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 1};	
 	feature.text_multiline = line;
+	vector_layer.addFeatures(line);
 }

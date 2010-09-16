@@ -6,7 +6,29 @@ class service extends module {
 			case "list_contents":
 				$this->list_contents();
 				break;
+			case "save":
+				$this->save();
+				break;
 		}
+	}
+
+	function save(){
+		$id = (int) $_POST["id"];
+		$name = mysql_escape_string($_POST["name"]);
+		$description = mysql_escape_string($_POST["description"]);
+		$referer = $_POST["referer"];
+		if(!($name=="" && $description =="")){
+			if($id>0){
+				mysql_query("UPDATE services set name='$name', description='$description' WHERE id = $id");
+			} else {
+				mysql_query("INSERT INTO services(name, description) VALUES ('$name', '$description')");
+				echo mysql_insert_id();
+			}
+		}
+		if($referer)
+			header("Location: $referer");
+		else
+			echo "Saved. You can close the window now.";
 	}
 
 	function list_contents(){

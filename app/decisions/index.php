@@ -6,11 +6,14 @@ class decisions extends module {
 		switch ($action){
 			case "get":
 				$id = (int) $_GET["id"];
-				$r = mysql_fetch_assoc(mysql_query("SELECT name, ".build_field_list(array("description", "question"), $this->language).", checked FROM states WHERE id = $id"));
+				$r = mysql_fetch_assoc(mysql_query("SELECT name, ".build_field_list(array("description", "question", "info", "document", "video_link"), $this->language).", checked FROM states WHERE id = $id"));
 				$name = $r["name"];
 				$description = $r["description"];
 				$question = $r["question"];
 				$checked = $r["checked"];
+				$info = $r["info"];
+				$document = $r["document"];
+				$video_link = $r["video_link"];
 				echo "<table>";
 				echo "<tr class='decision_name'><td>Name: </td><td><input name='name'  class='first_input' value='$name'/><input class='decision_start' type='checkbox' $checked/>Start</td></tr>";
 				echo "<tr class='decision_description'><td>Description: </td><td><input name='description' value='$description'/></td></tr>";
@@ -34,6 +37,9 @@ class decisions extends module {
 					echo "</td></tr>";
 				}
 				echo "</table></td></tr>";
+				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value='$info'/></td></tr>";
+				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value='$document'/></td></tr>";
+				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value='$video_link'/></td></tr>";
 				echo "</table>";
 				echo "<button class='save_decision'>Save</button>";
 				break;
@@ -57,7 +63,9 @@ class decisions extends module {
 				$id = (int) $_POST["id"];
 				$checked = mysql_escape_string($_POST["checked"]);
 				$name = mysql_escape_string($_POST["name"]);
-				mysql_query("UPDATE states SET name = '$name', ".build_upd_field_list(array("description", "question"), $this->language).", checked='$checked' WHERE id = $id");
+				$decision_type = mysql_escape_string($_POST["decision_type"]);
+				$input_type = mysql_escape_string($_POST["input_type"]);
+				mysql_query("UPDATE states SET name = '$name', ".build_upd_field_list(array("description", "question", "info", "document", "video_link"), $this->language).", checked='$checked', decision_type='$decision_type', input_type='$input_type' WHERE id = $id");
 				mysql_query("DELETE FROM connections WHERE id1=$id");
 				foreach($_POST["conditions"] as $condition){
 					$expression = $condition["condition"];

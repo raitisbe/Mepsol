@@ -1,3 +1,6 @@
+<?php
+	if(isset($_GET["id"])) $_SESSION["id"] = $_GET["id"];
+?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -9,6 +12,8 @@
 	<script type="text/javascript" src="js/jquery-ui-1.8.4.custom.min.js"></script>
 	<script src="./views/main/index.js"></script>
 	<script src="./views/main/drawtext.js"></script>
+	<script src="./libs/thickbox/thickbox.js"></script>
+	<link type="text/css" href="./libs/thickbox/thickbox.css" rel="stylesheet" />	
 </head>
 <body>
 	<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p> 
@@ -28,12 +33,15 @@
 		<li title="Link" id="tool_link" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-link"></span>
 		</li>
-		<li title="Cut" id="tool_unlink" class="ui-state-default ui-corner-all">
+		<li title="Cut link" id="tool_unlink" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-scissors"></span>
 		</li>
 		<li class="ui-state-default ui-corner-all"></li>
-		<li title="Execute Dialog" id="tool_play" class="ui-state-default ui-corner-all">
-			<span class="ui-icon ui-icon-play"></span>
+		<li title="Execute Dialog" id="tool_play" class="ui-state-default ui-corner-all" >
+			<a href="./?view=dialog" class="ui-icon ui-icon-play"></a>
+		</li>
+		<li title="Edit service description" id="tool_edit" class="ui-state-default ui-corner-all" href="./?view=edit_service">
+			<span class="ui-icon ui-icon-info"></span>
 		</li>
 	</ul>
 	<div id="map"></div>

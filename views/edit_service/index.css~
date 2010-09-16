@@ -1,0 +1,27 @@
+body{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	
+}
+
+input, textarea{
+	margin: 4px;
+}
+
+#description, #name {
+	width: 300px;
+	border: 1px #555555 solid;
+}
+
+#name {
+	height: 25px;
+}
+
+#description{
+	height: 200px;
+}
+
+#save{
+	padding: 10px 30px; min-width: 200px;
+}
+

@@ -28,7 +28,7 @@ require_once ("functions.php");
 require_once ("module.php");
 if($pg == null){
 	if ($view == null) {
-		include "views/main/index.php";
+		include "views/services/index.php";
 		return;
 	} else {
 		include "views/$view/index.php";

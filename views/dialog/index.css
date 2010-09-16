@@ -1,4 +1,4 @@
-#map{position: absolute; left: 5px; top: 150px; width:30%; bottom: 5px; border: 1px #bbbbbb solid;}
+#map{position: absolute; left: 5px; top: 100px; width:30%; bottom: 5px; border: 1px #bbbbbb solid;}
 
 #title{font-family: Arial, Helvetica, sans-serif; font-size: 180%; color: #dddddd; padding: 5px; background-color: #1a82f7; background: url(images/linear_bg_2.png); background: -moz-linear-gradient(100% 100% 90deg, #2F2727, #1a82f7); background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#1a82f7), to(#2F2727));}
 #title b{font-size: 190%}
@@ -12,7 +12,7 @@ ul#icons li.dblselected{border: 3px #3333AA solid;}
 .label{font-family: Arial, Helvetica, sans-serif;}
 
 tr.decision_question input, tr.decision_description input, tr.state_description input, tr.state_document input, tr.state_video input, tr.state_information input{width: 300px;}
-button{padding: 10px 30px }
+button{padding: 10px 30px; min-width: 200px; }
 #language{float:right}
 
 .newspaper-table
@@ -36,3 +36,40 @@ button{padding: 10px 30px }
 }
 .newspaper-table td{padding: 4px 10px 4px 10px; color: #669;}
 .newspaper-table tbody tr:hover td{color: #339; background: #d0dafd;}
+
+#dialog_column{
+	position: absolute;
+	right: 60px;
+	margin-left: 10px;
+	left: 30%;
+}
+
+.question{
+	width: 350px;
+	min-height: 40px;
+	background-color: #F7D56F;
+	border: 1px #E6C45E solid;
+	padding: 3px;
+}
+
+.state_name {
+	color: #555555;
+}
+
+select.answers{
+	min-width: 200px;
+	height: 25px;
+	margin-top: 5px;
+}
+
+#accordion{
+	width: 50%;
+}
+
+hr{
+	border: 1px gray dashed;
+}
+
+#question_container{
+	max-width: 90%;
+}
