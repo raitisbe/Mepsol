@@ -39,7 +39,7 @@ class dialog extends module {
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
 			error_log(print_r($_SESSION["history_stack"],true));
-			$this->setCurrentState($last);
+			$this->setCurrentState($last, false);
 		}
 		$this->getCurrentState();
 	}
@@ -93,7 +93,8 @@ class dialog extends module {
 	function openState($id){
 		$qr = mysql_query("SELECT id, name, type FROM states WHERE id = $id");
 		$r = mysql_fetch_assoc($qr);
-		$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
+		if(!in_array(array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false), $_SESSION["states_open"])
+			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
 	}
 
 	function init(){
