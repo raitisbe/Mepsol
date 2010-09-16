@@ -155,7 +155,7 @@ function print_json_record($qr, $r)
 			//$val = str_replace("\"","\\\"",$val);
 			if($val=="" && ($type=="int" || $type=="real")) $val = 0;
 			if($var_cont == '"')
-				echo '"'.mysql_field_name($qr, $i).'":'.json_encode($val, JSON_FORCE_OBJECT);
+				echo '"'.mysql_field_name($qr, $i).'":'.json_encode($val);
 			else
 				echo '"'.mysql_field_name($qr, $i).'":'.$val;
 			$first = false;
