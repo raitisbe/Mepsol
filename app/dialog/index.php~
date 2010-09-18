@@ -106,7 +106,7 @@ class dialog extends module {
 				break;
 			}
 		}
-		if($found){
+		if(!$found){
 			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
 			return true;
 		} else {

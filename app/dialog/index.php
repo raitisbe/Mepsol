@@ -68,7 +68,6 @@ class dialog extends module {
 				}
 			}
 			if($opened) {
-				error_log("advance");
 				$this->advance();
 			}
 		}
@@ -110,7 +109,6 @@ class dialog extends module {
 			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
 			return true;
 		} else {
-			error_log("couldnt open $id");
 			return false;
 		}
 	}
