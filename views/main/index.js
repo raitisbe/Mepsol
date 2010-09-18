@@ -12,6 +12,7 @@ var tool_permanent = false;
 var tool = "";
 var selected_feature = null;
 var AutoSizeAnchored = OpenLayers.Class(OpenLayers.Popup.Anchored, {'autoSize': true});
+var last_feature_pos = null;
 
 $(document).ready(function() {
 	var maxExtent = new OpenLayers.Bounds(0, 0, 20037508.34, 20037508.34);
@@ -37,6 +38,15 @@ $(document).ready(function() {
 			if(selected_feature!=null){
 				$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
 				}});
+				if(selected_feature.attributes.type=="decisions" || selected_feature.attributes.type=="states"){
+					selected_feature.text_multiline.destroy();
+					for ( var i in selected_feature.from_lines)
+						selected_feature.from_lines[i].destroy();
+					for ( var i in selected_feature.to_lines)
+						selected_feature.to_lines[i].destroy();
+				}
+				if(active_popup)
+					map.removePopup(active_popup.popup);
 				selected_feature.destroy();
 				vector_layer.redraw();
 				selected_feature = null;
@@ -56,11 +66,13 @@ function loadModel(){
 			var features = createState(this.x, this.y, this.w, this.h, this.id, this);
 			vector_layer.addFeatures(features);
 			addLabel(features[0]);
+			centerTextIntoBlock(features[0]);
 		});
 		$(d[1].decisions).each(function(){
 			var features = createDecision(this.x, this.y, this.w, this.h, this.id, this);
 			vector_layer.addFeatures(features);	
 			addLabel(features[0]);
+			centerTextIntoBlock(features[0]);
 		});
 		$(d[2].connections).each(function(){
 			for(var i in vector_layer.features){
@@ -130,7 +142,7 @@ function createLayers(){
 }
 
 function createDraggers(){
-	ctrlDragState = new OpenLayers.Control.DragFeature(vector_layer);
+	ctrlDragState = new OpenLayers.Control.DragFeature(vector_layer, {geometryTypes:["OpenLayers.Geometry.Polygon", "OpenLayers.Geometry.LinearRing"]});
 	map.addControl(ctrlDragState);
 	ctrlDragState.onDrag = featureMove;
 	ctrlDragState.onComplete = featureMoved;
@@ -158,18 +170,20 @@ function setTool(which){
 }
 
 function featureSelected(feature){
-	last_feature_pos = feature.geometry.getBounds().toArray();
-	if(linking){
-		if(starting_feature==null){
-			starting_feature = feature;
+	if(feature.attributes.type=="decisions" || feature.attributes.type=="states"){
+		last_feature_pos = feature.geometry.getBounds().toArray();
+		if(linking){
+			if(starting_feature==null){
+				starting_feature = feature;
+			} else {
+				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
+				}});
+				connectWithLine(starting_feature, feature);
+				linking = false;
+			}
 		} else {
-			$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
-			}});
-			connectWithLine(starting_feature, feature);
-			linking = false;
+			editFeature(feature);
 		}
-	} else {
-		editFeature(feature);
 	}
 }
 
@@ -218,6 +232,7 @@ function updateState(){
 function recreateLabel(feature){
 	if(feature.text_multiline!=undefined) feature.text_multiline.destroy();
 	addLabel(feature);
+	centerTextIntoBlock(feature);
 	vector_layer.redraw();
 }
 
@@ -266,9 +281,14 @@ function featureMove(feature, pix){
 		var vs = feature.to_lines[i].geometry.getVertices(true);
 		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);
 	}
+	centerTextIntoBlock(feature);
+	connection_layer.redraw();
+}
+
+function centerTextIntoBlock(feature){
 	if(feature.text_multiline.geometry.getBounds() != null){
 		var tmp = feature.geometry.getBounds().toArray();
-		if(tmp[0] - last_feature_pos[0]>10 || tmp[3] - last_feature_pos[3]){
+		if(last_feature_pos!=null && (tmp[0] - last_feature_pos[0]>10 || tmp[3] - last_feature_pos[3])){
 			if(active_popup)
 				map.removePopup(active_popup.popup);
 		}
@@ -279,9 +299,9 @@ function featureMove(feature, pix){
 		for ( var i in vs){
 			vs[i].move(xdif,ydif);
 		}
+		last_feature_pos = tmp;
 		vector_layer.redraw();
 	}
-	connection_layer.redraw();
 }
 
 function map_click(e) {
