@@ -45,6 +45,8 @@ $(document).ready(function() {
 					for ( var i in selected_feature.to_lines)
 						selected_feature.to_lines[i].destroy();
 				}
+				if(active_popup)
+					map.removePopup(active_popup.popup);
 				selected_feature.destroy();
 				vector_layer.redraw();
 				selected_feature = null;
