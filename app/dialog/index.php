@@ -93,7 +93,7 @@ class dialog extends module {
 	function openState($id){
 		$qr = mysql_query("SELECT id, name, type FROM states WHERE id = $id");
 		$r = mysql_fetch_assoc($qr);
-		if(!in_array(array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false), $_SESSION["states_open"])
+		if(!in_array(array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false), $_SESSION["states_open"]))
 			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
 	}
 
