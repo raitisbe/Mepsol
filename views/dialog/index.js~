@@ -49,7 +49,7 @@ function startDialog(){
 function receiveState(d){
 	$("#question_container").html("");
 	var state = d.state[0];
-	$("#question_container").append("<div class='state_name'>"+state.name+"</div>");
+	$("#question_container").append("<span class='state_name'>"+state.name+"</span>");
 	
 	if(state["type"]=="d"){
 		if(state.decision_type=="Input"){
