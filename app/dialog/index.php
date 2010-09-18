@@ -30,7 +30,6 @@ class dialog extends module {
 
 	function stepBack(){
 		if(sizeof($_SESSION["history_stack"])>1){
-			error_log(sizeof($_SESSION["history_stack"]));
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
 			for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
 				if($_SESSION["states_open"][$i]["id"]==$last){
@@ -39,7 +38,6 @@ class dialog extends module {
 			}
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
-			error_log(print_r($_SESSION["history_stack"],true));
 			$this->setCurrentState($last, false);
 		}
 		$this->getCurrentState();
