@@ -99,6 +99,8 @@ class dialog extends module {
 		if(!in_array(array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false), $_SESSION["states_open"])){
 			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
 			return true;
+		} else {
+			return false;
 		}
 	}
 
