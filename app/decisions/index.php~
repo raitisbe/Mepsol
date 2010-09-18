@@ -37,10 +37,10 @@ class decisions extends module {
 					echo "</td></tr>";
 				}
 				echo "</table></td></tr>";
-				echo "</table>";
 				echo "<tr class='state_info' ><td>Information item: </td><td><input name='info' value='$info'/></td></tr>";
 				echo "<tr class='state_document'><td>Document: </td><td><input name='document' value='$document'/></td></tr>";
 				echo "<tr class='state_video_link'><td>Video link: </td><td><input name='video_link' value='$video_link'/></td></tr>";
+				echo "</table>";
 				echo "<button class='save_decision'>Save</button>";
 				break;
 			case "add":
@@ -85,8 +85,9 @@ class decisions extends module {
 	}
 
 	function lists(){
+		$serviceid = $_SESSION["serviceid"];
 		echo "{";
-		print_jason_records(false, "SELECT id, name AS name, x, y, w, h, type FROM states WHERE type='d'", "decisions");
+		print_jason_records(false, "SELECT id, name AS name, x, y, w, h, type FROM states WHERE serviceid=$serviceid AND type='d'", "decisions");
 		echo "}";
 	}
 

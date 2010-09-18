@@ -42,6 +42,10 @@ function goToPrev(){
 
 function startDialog(){
 	$.ajax( { type : "GET", url : "./?pg=dialog&action=start", cache : false, dataType: "json", success : function(d){
+		if(d.state.length==0){
+			alert("Starting state of the dialog has not been set");
+			return;
+		}
 		receiveState(d);
 	}})
 }
@@ -134,7 +138,7 @@ function loadModel(){
 			}
 		});
 		addLabels(vector_layer);
-		map.zoomToExtent(vector_layer.getDataExtent());
+		map.zoomToExtent(vector_layer.getDataExtent(), true);
 	}});
 }
 
@@ -203,6 +207,7 @@ function addLabels(layer){
 	for(var i in layer.features)
 	{
 		addLabel(layer.features[i]);
+		centerTextIntoBlock(layer.features[i]);
 	}
 }
 
@@ -216,4 +221,20 @@ function addLabel(feature){
 	line.style={strokeColor: "#000000", strokeOpacity: 1, strokeWidth: 1};
 	vector_layer.addFeatures(line);
 	feature.text_multiline = line;
+}
+
+function centerTextIntoBlock(feature){
+	if(feature.text_multiline.geometry.getBounds() != null){
+		return;
+		var tmp = feature.geometry.getBounds().toArray();
+		var vs = feature.text_multiline.geometry.getVertices();
+		var vb = feature.text_multiline.geometry.getBounds().toArray();
+		var xdif= tmp[0] - vb[0] + ((tmp[2]-tmp[0]) - (vb[2]-vb[0]))/2;
+		var ydif = tmp[3] - vb[3] + ((tmp[1]-tmp[3]) - (vb[1]-vb[3]))/2;
+		for ( var i in vs){
+			vs[i].move(xdif,ydif);
+		}
+		last_feature_pos = tmp;
+		vector_layer.redraw();
+	}
 }

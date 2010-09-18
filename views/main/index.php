@@ -1,5 +1,5 @@
 <?php
-	if(isset($_GET["id"])) $_SESSION["id"] = $_GET["id"];
+	if(isset($_GET["id"])) $_SESSION["serviceid"] = $_GET["id"];
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

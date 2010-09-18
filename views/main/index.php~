@@ -38,7 +38,7 @@
 		</li>
 		<li class="ui-state-default ui-corner-all"></li>
 		<li title="Execute Dialog" id="tool_play" class="ui-state-default ui-corner-all" >
-			<a href="./?view=dialog" class="ui-icon ui-icon-play"></a>
+			<a href="./?view=dialog" target="_blank" class="ui-icon ui-icon-play"></a>
 		</li>
 		<li title="Edit service description" id="tool_edit" class="ui-state-default ui-corner-all" href="./?view=edit_service">
 			<span class="ui-icon ui-icon-info"></span>

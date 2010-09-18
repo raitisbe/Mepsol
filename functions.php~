@@ -115,6 +115,7 @@ function print_records($sql, $name)
 function print_jason_records($add_comma, $sql, $name)
 {
 	$resu = mysql_query($sql);
+	echo $sql;
 	if(mysql_error()!="") {return;}
 	if(mysql_num_rows($resu) != 0){
 		if($add_comma) echo ", ";
@@ -155,7 +156,7 @@ function print_json_record($qr, $r)
 			//$val = str_replace("\"","\\\"",$val);
 			if($val=="" && ($type=="int" || $type=="real")) $val = 0;
 			if($var_cont == '"')
-				echo '"'.mysql_field_name($qr, $i).'":'.json_encode($val, JSON_FORCE_OBJECT);
+				echo '"'.mysql_field_name($qr, $i).'":'.json_encode($val);
 			else
 				echo '"'.mysql_field_name($qr, $i).'":'.$val;
 			$first = false;

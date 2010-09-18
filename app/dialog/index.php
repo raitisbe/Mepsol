@@ -5,13 +5,14 @@ class dialog extends module {
 		$action = $_GET["action"];
 		switch ($action){
 			case "start":
-				$qr = mysql_query("SELECT id FROM states WHERE checked = 'checked'");
+				$serviceid = $_SESSION["serviceid"];
+				$qr = mysql_query("SELECT id FROM states WHERE checked = 'checked' AND serviceid=$serviceid LIMIT 1");
 				$_SESSION["states_open"] = array();
 				$_SESSION["history_stack"] = array();
 				$r = mysql_fetch_assoc($qr);
 				$id = $r["id"];
+				$this->setCurrentState($id);
 				$this->openState($id);
-				$this->advance();
 				$this->getCurrentState();
 				break;
 			case "advance":
@@ -75,6 +76,10 @@ class dialog extends module {
 	function getCurrentState(){
 		echo "{";
 		$id = $_SESSION["current_state"];
+		if(!$id){
+			echo '"state":[]}';
+			return;
+		}
 		print_jason_records(false, "SELECT id, name, description_$this->language AS description, type, decision_type, input_type, question_$this->language AS question FROM states WHERE id = $id", "state");
 		print_jason_records(true, "SELECT connections.expr FROM connections INNER JOIN states ON states.id=connections.id2 WHERE id1 = $id", "answers");
 		$r = mysql_fetch_assoc(mysql_query("SELECT ".build_field_list(array("description", "info", "document", "video_link"), $this->language)." FROM states WHERE id = $id"));
