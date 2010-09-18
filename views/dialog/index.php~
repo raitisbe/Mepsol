@@ -3,7 +3,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>MEPSOL</title>
 	<link rel="stylesheet" type="text/css" href="./views/dialog/index.css" media="all" />
-	<script src="./libs/OpenLayers-2.9/OpenLayers.js"></script>
+	<script src="./gz.php?uri=.%2Flibs%2FOpenLayers-2.9%2FOpenLayers.js"></script>
 	<script src="./libs/jquery/js/jquery-1.4.2.min.js"></script>
 	<link type="text/css" href="./libs/jquery/css/ui-lightness/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
 	<script type="text/javascript" src="./libs/jquery/js/jquery-ui-1.8.4.custom.min.js"></script>

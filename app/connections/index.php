@@ -6,7 +6,8 @@ class connections extends module {
 			case "add":
 				$id1 = (int) $_POST["id1"];
 				$id2 = (int) $_POST["id2"];
-				mysql_query("INSERT INTO connections(id1, id2) VALUES ($id1, $id2)");
+				$serviceid = $_SESSION["serviceid"];
+				mysql_query("INSERT INTO connections(id1, id2, serviceid) VALUES ($id1, $id2, $serviceid)");
 				echo mysql_insert_id();
 				break;
 			case "del":
@@ -26,8 +27,9 @@ class connections extends module {
 	}
 
 	function lists(){
+		$serviceid = $_SESSION["serviceid"];
 		echo "{";
-		print_jason_records(false, "SELECT id, id1, id2 FROM connections", "connections");
+		print_jason_records(false, "SELECT id, id1, id2 FROM connections WHERE serviceid=$serviceid", "connections");
 		echo "}";
 	}
 

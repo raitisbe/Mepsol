@@ -20,12 +20,12 @@ class connections extends module {
 				echo mysql_error();
 				break;
 			case "list":
-				$this->list();
+				$this->lists();
 				break;
 		}
 	}
 
-	function list(){
+	function lists(){
 		echo "{";
 		print_jason_records(false, "SELECT id, id1, id2 FROM connections", "connections");
 		echo "}";

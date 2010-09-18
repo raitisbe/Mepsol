@@ -13,6 +13,7 @@ var tool = "";
 var selected_feature = null;
 var AutoSizeAnchored = OpenLayers.Class(OpenLayers.Popup.Anchored, {'autoSize': true});
 var last_feature_pos = null;
+var last_closest_line = -1;
 
 $(document).ready(function() {
 	var maxExtent = new OpenLayers.Bounds(0, 0, 20037508.34, 20037508.34);
@@ -28,9 +29,12 @@ $(document).ready(function() {
 	$("#tool_select").click(activateSelectors);
 	$("#tool_link").click(activateLinker);
 	$("#tool_state").click(function(){setTool("state")});
+	$("#tool_unlink").click(function(){setTool("unlink")});
 	$("#tool_select").click();
 	$("#tool_decision").click(function(){setTool("decision")});
 	$("#tool_edit").click(editService);
+	map.events.register("mousemove", map, mapMouseMove);
+	map.events.register("click", map, mapClick);
 	loadModel();
 	$(document).keydown(function(e){
 		switch (e.which) {
@@ -56,6 +60,43 @@ $(document).ready(function() {
 	})
 })
 
+function mapClick(){
+	if(tool == "unlink" && last_closest_line != -1){
+		$.ajax( { type : "POST", url : "?pg=connections&action=del", cache : false, data: {"id":connection_layer.features[last_closest_line].attributes.id}, success : function(d){
+			connection_layer.features[last_closest_line].destroy();
+			connection_layer.redraw();
+		}});
+		
+	}
+}
+
+function mapMouseMove(e) {
+	if(tool=="unlink"){
+		var mousepos = map.getLonLatFromLayerPx(e.xy);
+		var ft1 = new OpenLayers.Geometry.Point(mousepos.lon, mousepos.lat);
+		var min_dist = 100;
+		var min_i = -1;
+		for(var i in connection_layer.features){
+			if(connection_layer.features[i].geometry.CLASS_NAME=="OpenLayers.Geometry.LineString"){
+				var DistBetween = new OpenLayers.DistBwPointAndLine(connection_layer.features[i].geometry, ft1);
+				if(DistBetween.distMin<min_dist){
+					min_dist = DistBetween.distMin;
+					min_i = i;
+				}
+			}
+		}
+		if(min_i!=last_closest_line){
+			for(var i in connection_layer.features){
+				connection_layer.features[i].style = {strokeColor: "#ee9900", strokeWidth: 1};
+			}
+			if(min_i != -1)
+				connection_layer.features[min_i].style = {strokeColor: "#EE1111", strokeWidth: 3};
+			connection_layer.redraw();
+			last_closest_line = min_i;
+		}
+	}
+}
+
 function editService(){
 	tb_show("Edit service description", $(this).attr("href")+"&amp;TB_iframe=true&amp;height=350&amp;width=400", null);
 }
@@ -79,7 +120,7 @@ function loadModel(){
 				if(vector_layer.features[i].attributes.id==this.id1){
 					for(var ii in vector_layer.features){
 						if(vector_layer.features[ii].attributes.id==this.id2){
-							connectWithLine(vector_layer.features[i], vector_layer.features[ii]);
+							connectWithLine(vector_layer.features[i], vector_layer.features[ii], this.id);
 						}
 					}
 				}
@@ -178,9 +219,9 @@ function featureSelected(feature){
 				starting_feature = feature;
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
+					connectWithLine(starting_feature, feature, d);
+					linking = false;
 				}});
-				connectWithLine(starting_feature, feature);
-				linking = false;
 			}
 		} else {
 			editFeature(feature);
@@ -256,10 +297,11 @@ function updateDecision(){
 	recreateLabel(selected_feature);
 }
 
-function connectWithLine(feature1, feature2){
+function connectWithLine(feature1, feature2, id){
 	var line = createSimpleLine(feature1.geometry.getCentroid(), feature2.geometry.getCentroid());
 	line[0].from = feature1;
 	line[0].to = feature2;
+	line[0].attributes.id = id;
 	feature1.from_lines.push(line[0]);
 	feature2.to_lines.push(line[0]);
 	connection_layer.addFeatures(line);
