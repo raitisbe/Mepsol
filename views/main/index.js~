@@ -85,6 +85,7 @@ function loadModel(){
 				}
 			}
 		});
+		map.zoomToExtent(vector_layer.getDataExtent());
 	}});
 }
 

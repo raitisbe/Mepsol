@@ -134,6 +134,7 @@ function loadModel(){
 			}
 		});
 		addLabels(vector_layer);
+		map.zoomToExtent(vector_layer.getDataExtent());
 	}});
 }
 
