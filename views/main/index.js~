@@ -209,6 +209,7 @@ function setTool(which){
 	$("#tool_"+tool).removeClass("selected");
 	tool = which;
 	$("#tool_"+which).addClass("selected");
+	linking = false;
 }
 
 function featureSelected(feature){

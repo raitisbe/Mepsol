@@ -216,7 +216,7 @@ function featureSelected(feature){
 	if(feature.attributes.type=="decisions" || feature.attributes.type=="states"){
 		last_feature_pos = feature.geometry.getBounds().toArray();
 		if(linking){
-			if(starting_feature==null){
+			if(starting_feature == null){
 				starting_feature = feature;
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
@@ -225,6 +225,7 @@ function featureSelected(feature){
 			}
 		} else {
 			editFeature(feature);
+			starting_feature = null;
 		}
 	}
 }
