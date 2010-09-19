@@ -62,8 +62,11 @@ $(document).ready(function() {
 
 function mapClick(){
 	if(tool == "unlink" && last_closest_line != -1){
-		connection_layer.features[last_closest_line].destroy();
-		connection_layer.redraw();
+		$.ajax( { type : "POST", url : "?pg=connections&action=del", cache : false, data: {"id":connection_layer.features[last_closest_line].attributes.id}, success : function(d){
+			connection_layer.features[last_closest_line].destroy();
+			connection_layer.redraw();
+		}});
+		
 	}
 }
 
@@ -217,7 +220,6 @@ function featureSelected(feature){
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 					connectWithLine(starting_feature, feature, d);
-					linking = false;
 				}});
 			}
 		} else {

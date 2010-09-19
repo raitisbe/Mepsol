@@ -209,6 +209,7 @@ function setTool(which){
 	$("#tool_"+tool).removeClass("selected");
 	tool = which;
 	$("#tool_"+which).addClass("selected");
+	linking = false;
 }
 
 function featureSelected(feature){
@@ -220,7 +221,6 @@ function featureSelected(feature){
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 					connectWithLine(starting_feature, feature, d);
-					linking = false;
 				}});
 			}
 		} else {

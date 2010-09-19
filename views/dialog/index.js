@@ -28,8 +28,14 @@ $(document).ready(function() {
 	startDialog();
 })
 
+function getAnswer(){
+	if($(".answers").length>0)
+		return $(".answers option:selected").val();
+	return null;
+}
+
 function goToNext(){
-	$.ajax( { type : "GET", url : "./?pg=dialog&action=advance", cache : false, dataType: "json", success : function(d){
+	$.ajax( { type : "GET", url : "./?pg=dialog&action=advance", cache : false, data: {"answer":getAnswer()}, dataType: "json", success : function(d){
 		receiveState(d);
 	}})
 }

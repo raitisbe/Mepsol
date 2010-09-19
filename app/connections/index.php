@@ -7,6 +7,10 @@ class connections extends module {
 				$id1 = (int) $_POST["id1"];
 				$id2 = (int) $_POST["id2"];
 				$serviceid = $_SESSION["serviceid"];
+				if ($id1==$id2){
+					echo 0;
+					return;
+				}
 				mysql_query("INSERT INTO connections(id1, id2, serviceid) VALUES ($id1, $id2, $serviceid)");
 				echo mysql_insert_id();
 				break;

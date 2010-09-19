@@ -9,6 +9,7 @@ class dialog extends module {
 				$qr = mysql_query("SELECT id FROM states WHERE checked = 'checked' AND serviceid=$serviceid LIMIT 1");
 				$_SESSION["states_open"] = array();
 				$_SESSION["history_stack"] = array();
+				$_SESSION["open_stack"] = array();
 				$r = mysql_fetch_assoc($qr);
 				$id = $r["id"];
 				$this->setCurrentState($id);
@@ -16,6 +17,7 @@ class dialog extends module {
 				$this->getCurrentState();
 				break;
 			case "advance":
+				$this->answer();
 				$this->advance();
 				$this->getCurrentState();
 				break;
@@ -28,16 +30,22 @@ class dialog extends module {
 		}
 	}
 
+	function answer(){
+		for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
+			if($_SESSION["states_open"][$i]["id"] == $_SESSION["current_state"]){
+				$_SESSION["states_open"][$i]["answer"] = $_GET["answer"];
+				$_SESSION["states_open"][$i]["advanced"] = false;
+				break;
+			}
+		}
+	}
+
 	function stepBack(){
 		if(sizeof($_SESSION["history_stack"])>1){
-			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
-			for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
-				if($_SESSION["states_open"][$i]["id"]==$last){
-					$_SESSION["states_open"][$i]["visited"] = false;
-				}
-			}
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
+			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);
+			$_SESSION["states_open"] = $_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1];
 			$this->setCurrentState($last, false);
 		}
 		$this->getCurrentState();
@@ -58,10 +66,16 @@ class dialog extends module {
 		if(!$was_open){
 			$opened = false;
 			for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
-				if(!$_SESSION["states_open"][$i]["advanced"]){
+				if($_SESSION["states_open"][$i]["visited"] && !$_SESSION["states_open"][$i]["advanced"]){
 					$_SESSION["states_open"][$i]["advanced"] = true;
 					$qr = mysql_query("SELECT connections.expr, id2 FROM connections INNER JOIN states ON states.id=connections.id2 WHERE id1 = ".$_SESSION["states_open"][$i]["id"]);
 					while($r = mysql_fetch_array($qr)){
+						if($_SESSION["states_open"][$i]["type"]=="d"){
+							if($_SESSION["states_open"][$i]["decision_type"]=="Input"){
+								if($_SESSION["states_open"][$i]["answer"] != $r["expr"]) continue;
+								
+							}
+						}
 						if($this->openState($r["id2"]))
 							$opened = true;
 					}
@@ -92,11 +106,13 @@ class dialog extends module {
 	function setCurrentState($id, $store_in_history = true){
 		$_SESSION["current_state"] = $id;
 		if(!isset($_SESSION["history_stack"])) $_SESSION["history_stack"] = array();
+		if(!isset($_SESSION["open_stack"])) $_SESSION["open_stack"] = array();
 		if($store_in_history) $_SESSION["history_stack"][] = $id;
+		if($store_in_history) $_SESSION["open_stack"][] = $_SESSION["states_open"];
 	}
 
 	function openState($id){
-		$qr = mysql_query("SELECT id, name, type FROM states WHERE id = $id");
+		$qr = mysql_query("SELECT id, name, type, decision_type, decision_variable FROM states WHERE id = $id");
 		$r = mysql_fetch_assoc($qr);
 		$found = false;
 		for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
@@ -106,7 +122,7 @@ class dialog extends module {
 			}
 		}
 		if(!$found){
-			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "visited"=>false, "advanced"=>false);
+			$_SESSION["states_open"][] = array("id"=>$id, "name"=>$r["name"], "type"=>$r["type"], "decision_type"=>$r["decision_type"], "decision_variable"=>$r["decision_variable"], "visited"=>false, "advanced"=>false, "answer" =>null);
 			return true;
 		} else {
 			return false;

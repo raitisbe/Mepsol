@@ -28,8 +28,13 @@ $(document).ready(function() {
 	startDialog();
 })
 
+function getAnswer(){
+	if($(".answers").length>0)
+		return $(".answers option:selected").val();
+}
+
 function goToNext(){
-	$.ajax( { type : "GET", url : "./?pg=dialog&action=advance", cache : false, dataType: "json", success : function(d){
+	$.ajax( { type : "GET", url : "./?pg=dialog&action=advance", cache : false, data: {"answer":getAnswer()}, dataType: "json", success : function(d){
 		receiveState(d);
 	}})
 }
@@ -225,7 +230,6 @@ function addLabel(feature){
 
 function centerTextIntoBlock(feature){
 	if(feature.text_multiline.geometry.getBounds() != null){
-		return;
 		var tmp = feature.geometry.getBounds().toArray();
 		var vs = feature.text_multiline.geometry.getVertices();
 		var vb = feature.text_multiline.geometry.getBounds().toArray();

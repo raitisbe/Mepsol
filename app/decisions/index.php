@@ -68,10 +68,11 @@ class decisions extends module {
 				$input_type = mysql_escape_string($_POST["input_type"]);
 				mysql_query("UPDATE states SET name = '$name', ".build_upd_field_list(array("description", "question", "info", "document", "video_link"), $this->language).", checked='$checked', decision_type='$decision_type', input_type='$input_type' WHERE id = $id");
 				mysql_query("DELETE FROM connections WHERE id1=$id");
+				$serviceid = $_SESSION["serviceid"];
 				foreach($_POST["conditions"] as $condition){
 					$expression = $condition["condition"];
 					$outcome_name = $condition["outcome"];
-					mysql_query("INSERT INTO connections(expr, id1, id2) VALUES ('$expression', $id, (SELECT states.id FROM states WHERE name LIKE '$outcome_name'))");
+					mysql_query("INSERT INTO connections(expr, id1, id2, serviceid) VALUES ('$expression', $id, (SELECT states.id FROM states WHERE name LIKE '$outcome_name'), $serviceid)");
 				}
 				break;
 			case "del":

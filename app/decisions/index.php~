@@ -48,7 +48,8 @@ class decisions extends module {
 				$y = (int) $_POST["y"];
 				$w = (int) $_POST["w"];
 				$h = (int) $_POST["h"];
-				mysql_query("INSERT INTO states(x, y, w, h, type) VALUES ($x, $y, $w, $h, 'd')");
+				$serviceid = $_SESSION["serviceid"];
+				mysql_query("INSERT INTO states(x, y, w, h, type, serviceid) VALUES ($x, $y, $w, $h, 'd', $serviceid)");
 				echo mysql_insert_id();
 				break;
 			case "move":
