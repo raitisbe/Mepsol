@@ -11,7 +11,7 @@
 <?php
 	if (isset($_GET["with_heading"]) && $_GET["with_heading"])
 		echo '<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p>';
-	$id = (int) (isset($_GET["id"]) ? $_GET["id"] : (isset($_SESSION["id"]) ? $_SESSION["id"] : 0));
+	$id = (int) (isset($_GET["id"]) ? $_GET["id"] : (isset($_SESSION["serviceid"]) ? $_SESSION["serviceid"] : 0));
 	
 	$name = "";
 	$description="";
