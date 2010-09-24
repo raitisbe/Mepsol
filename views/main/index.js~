@@ -30,35 +30,33 @@ $(document).ready(function() {
 	$("#tool_link").click(activateLinker);
 	$("#tool_state").click(function(){setTool("state")});
 	$("#tool_unlink").click(function(){setTool("unlink")});
+	$("#tool_delete").click(function(){setTool("delete")});
 	$("#tool_select").click();
 	$("#tool_decision").click(function(){setTool("decision")});
 	$("#tool_edit").click(editService);
 	map.events.register("mousemove", map, mapMouseMove);
 	map.events.register("click", map, mapClick);
 	loadModel();
-	$(document).keydown(function(e){
-		switch (e.which) {
-		case 46:
-			if(selected_feature!=null){
-				$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
-				}});
-				if(selected_feature.attributes.type=="decisions" || selected_feature.attributes.type=="states"){
-					selected_feature.text_multiline.destroy();
-					for ( var i in selected_feature.from_lines)
-						selected_feature.from_lines[i].destroy();
-					for ( var i in selected_feature.to_lines)
-						selected_feature.to_lines[i].destroy();
-				}
-				if(active_popup)
-					map.removePopup(active_popup.popup);
-				selected_feature.destroy();
-				vector_layer.redraw();
-				selected_feature = null;
-			}
-			break;
-		}
-	})
 })
+
+function deleteSelected(){
+	if(selected_feature!=null){
+		$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
+		}});
+		if(selected_feature.attributes.type=="decisions" || selected_feature.attributes.type=="states"){
+			selected_feature.text_multiline.destroy();
+			for ( var i in selected_feature.from_lines)
+				selected_feature.from_lines[i].destroy();
+			for ( var i in selected_feature.to_lines)
+				selected_feature.to_lines[i].destroy();
+		}
+		if(active_popup)
+			map.removePopup(active_popup.popup);
+		selected_feature.destroy();
+		vector_layer.redraw();
+		selected_feature = null;
+	}
+}
 
 function mapClick(){
 	if(tool == "unlink" && last_closest_line != -1){
@@ -132,21 +130,30 @@ function loadModel(){
 
 function createState(left, top, width, height, id, record){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Bounds(left, top+height, left+width, top).toGeometry()));
+	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Bounds(left, top+height, left+width, top).toGeometry(), {id: id, "type" : "states", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3}));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
-	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
-	features[0].attributes={id: id, "type" : "states", record : record};
 	return features;
+}
+
+function getDecisionGeometry(left, top, width, height){
+	return new OpenLayers.Geometry.LinearRing([
+		new OpenLayers.Geometry.Point(left + 10, top), 
+		new OpenLayers.Geometry.Point(left, top + 10),
+		new OpenLayers.Geometry.Point(left, top + height - 10), 
+		new OpenLayers.Geometry.Point(left + 10, top + height), 
+		new OpenLayers.Geometry.Point(left + width - 10, top + height), 
+		new OpenLayers.Geometry.Point(left + width, top + height - 10), 
+		new OpenLayers.Geometry.Point(left + width, top + 10), 
+		new OpenLayers.Geometry.Point(left + width - 10, top)
+	])
 }
 
 function createDecision(left, top, width, height, id, record){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(left, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top+height), new OpenLayers.Geometry.Point(left+width, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top)])));
+	features.push(new OpenLayers.Feature.Vector(getDecisionGeometry(left, top, width, height), {id: id, "type" : "decisions", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3}));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
-	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
-	features[0].attributes={id: id, "type" : "decisions", record : record};
 	return features;
 }
 
@@ -216,16 +223,22 @@ function featureSelected(feature){
 	if(feature.attributes.type=="decisions" || feature.attributes.type=="states"){
 		last_feature_pos = feature.geometry.getBounds().toArray();
 		if(linking){
-			if(starting_feature==null){
+			if(starting_feature == null){
 				starting_feature = feature;
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 					connectWithLine(starting_feature, feature, d);
 				}});
 			}
-		} else {
-			editFeature(feature);
+		} else if(tool=="delete"){
+			selected_feature = feature;
+			deleteSelected();
 		}
+		else {
+			editFeature(feature);
+			starting_feature = null;
+		}
+		
 	}
 }
 
@@ -268,14 +281,42 @@ function updateState(){
 		selected_feature.attributes.record = {};
 	}
 	selected_feature.attributes.record.name = $(".state_name input").val();
+	recalculateStateSize(selected_feature);
 	recreateLabel(selected_feature);
+	var bounds = selected_feature.geometry.getBounds().toArray();
+	$.ajax( { type : "POST", url : "?pg=states&action=move", cache : false, data: {"id":selected_feature.attributes.id, "x":bounds[0], "y":bounds[3] - 40, "w":bounds[2]-bounds[0], "h":bounds[3]-bounds[1]}, success : function(d){}});
+}
+
+function recalculateStateSize(feature){
+	var size = CanvasTextFunctions.measure(null, 15, feature.attributes.record.name);
+	var bounds = feature.geometry.getBounds().toArray();
+	var i=0;
+	var tmp_geom = new OpenLayers.Bounds(bounds[0], bounds[1], bounds[0] + size + 10, bounds[3]).toGeometry();
+	var vs = feature.geometry.getVertices();
+	var tvs = tmp_geom.getVertices();
+	for ( var i in vs){
+		vs[i].move(tvs[i].x - vs[i].x, tvs[i].y - vs[i].y);
+	}
+	vector_layer.drawFeature(feature);
+}
+
+function recalculateDecisionSize(feature){
+	var size = CanvasTextFunctions.measure(null, 15, feature.attributes.record.name);
+	var bounds = feature.geometry.getBounds().toArray();
+	var i=0;
+	var tmp_geom = getDecisionGeometry(bounds[0], bounds[3] - 40, size + 10, 40);
+	var vs = feature.geometry.getVertices();
+	var tvs = tmp_geom.getVertices();
+	for ( var i in vs){
+		vs[i].move(tvs[i].x - vs[i].x, tvs[i].y - vs[i].y);
+	}
+	vector_layer.drawFeature(feature);
 }
 
 function recreateLabel(feature){
 	if(feature.text_multiline!=undefined) feature.text_multiline.destroy();
 	addLabel(feature);
 	centerTextIntoBlock(feature);
-	vector_layer.redraw();
 }
 
 function getConditionMatrix(){
@@ -294,11 +335,14 @@ function updateDecision(){
 		selected_feature.attributes.record = {};
 	}
 	selected_feature.attributes.record.name = $(".decision_name input").val();
+	recalculateShapeSize(selected_feature);
 	recreateLabel(selected_feature);
+	var bounds = selected_feature.geometry.getBounds().toArray();
+	$.ajax( { type : "POST", url : "?pg=decisions&action=move", cache : false, data: {"id":selected_feature.attributes.id, "x":bounds[0], "y":bounds[3] - 40, "w":bounds[2]-bounds[0], "h":bounds[3]-bounds[1]}, success : function(d){}});
 }
 
 function connectWithLine(feature1, feature2, id){
-	var line = createSimpleLine(feature1.geometry.getCentroid(), feature2.geometry.getCentroid());
+	var line = createSimpleLine(getCentroid(feature1), getCentroid(feature2));
 	line[0].from = feature1;
 	line[0].to = feature2;
 	line[0].attributes.id = id;
@@ -312,20 +356,26 @@ function featureMoved(feature){
 	$.ajax( { type : "POST", url : "?pg="+feature.attributes.type+"&action=move", cache : false, data: {"id":feature.attributes.id, "x": bounds[0], "y": bounds[1], "w": bounds[2]-bounds[0], "h": bounds[3]-bounds[1]}});
 }
 
+function getCentroid(feature){
+	var bs = feature.geometry.getBounds().toArray();
+	return new OpenLayers.Geometry.Point(bs[0] + (bs[2]-bs[0])/2, bs[3] + (bs[1]-bs[3]) / 2);
+}
+
 function featureMove(feature, pix){
-	var  centroid = feature.geometry.getCentroid();
+	var centroid = getCentroid(feature);
 	for ( var i in feature.from_lines)
 	{
 		var vs = feature.from_lines[i].geometry.getVertices(true);
 		vs[0].move(centroid.x - vs[0].x, centroid.y - vs[0].y);
+		connection_layer.drawFeature(feature.from_lines[i]);
 	}
 	for ( var i in feature.to_lines)
 	{
 		var vs = feature.to_lines[i].geometry.getVertices(true);
-		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);
+		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);	
+		connection_layer.drawFeature(feature.to_lines[i]);
 	}
 	centerTextIntoBlock(feature);
-	connection_layer.redraw();
 }
 
 function centerTextIntoBlock(feature){
@@ -343,7 +393,7 @@ function centerTextIntoBlock(feature){
 			vs[i].move(xdif,ydif);
 		}
 		last_feature_pos = tmp;
-		vector_layer.redraw();
+		vector_layer.drawFeature(feature.text_multiline);
 	}
 }
 
@@ -358,7 +408,7 @@ function map_click(e) {
 	}
 	if(tool=="decision"){
 		$.ajax( { type : "POST", url : "?pg=decisions&action=add", cache : false, data: {"x": pos.lon-60, "y": pos.lat-20, "w": 140, "h": 100}, success : function(d){
-			var features = createDecision(pos.lon-60, pos.lat-20, 140, 100, d);
+			var features = createDecision(pos.lon-60, pos.lat-20, 120, 40, d);
 			vector_layer.addFeatures(features);
 			editFeature(features[0]);
 		}});

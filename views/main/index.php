@@ -23,6 +23,9 @@
 		<li title="Select" id="tool_select" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-carat-1-nw"></span>
 		</li>
+		<li title="Select" id="tool_delete" class="ui-state-default ui-corner-all">
+			<span class="ui-icon ui-icon-trash"></span>
+		</li>
 		<li class="ui-state-default ui-corner-all"></li>
 		<li title="Add new State" id="tool_state" class="ui-state-default ui-corner-all">
 			<span class="ui-icon ui-icon-document-b"></span>

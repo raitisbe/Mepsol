@@ -14,6 +14,7 @@
 	<script src="./views/main/drawtext.js"></script>
 	<script src="./libs/thickbox/thickbox.js"></script>
 	<link type="text/css" href="./libs/thickbox/thickbox.css" rel="stylesheet" />	
+	<script src="./libs/OpenLayers.DistBwPointAndLine.js"></script>
 </head>
 <body>
 	<p id="title"><b>M</b>odelling <b>E</b>nvironment for <b>P</b>ublic <b>S</b>ervices on <b>O</b>pen<b>L</b>ayers</p> 

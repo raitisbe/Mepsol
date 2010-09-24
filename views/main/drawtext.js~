@@ -170,21 +170,21 @@ CanvasTextFunctions.draw = function(ctx,font,size,x,y,str)
 		var penUp = 1;
 		var needStroke = 0;
 		for (var j = 0; j < c.points.length; j++) {
-		var a = c.points[j];
-		if ( a[0] == -1 && a[1] == -1) {
-			lines.push(new OpenLayers.Geometry.LineString(line));
-			line = [];
-			penUp = 1;
-			continue;
+			var a = c.points[j];
+			if ( a[0] == -1 && a[1] == -1) {
+				if(str.charAt(i)!=" ") lines.push(new OpenLayers.Geometry.LineString(line));
+				line = [];
+				penUp = 1;
+				continue;
+			}
+			if ( penUp) {
+				line.push(new OpenLayers.Geometry.Point(x + a[0]*mag, y + a[1]*mag));
+				penUp = false;
+			} else {
+				line.push(new OpenLayers.Geometry.Point(x + a[0]*mag, y + a[1]*mag));
+			}
 		}
-		if ( penUp) {
-			line.push(new OpenLayers.Geometry.Point(x + a[0]*mag, y + a[1]*mag));
-			penUp = false;
-		} else {
-			line.push(new OpenLayers.Geometry.Point(x + a[0]*mag, y + a[1]*mag));
-		}
-		}
-		lines.push(new OpenLayers.Geometry.LineString(line));
+		if(line.length > 0) lines.push(new OpenLayers.Geometry.LineString(line));
 		x += c.width*mag;
 	}
 	return new OpenLayers.Feature.Vector(new OpenLayers.Geometry.MultiLineString(lines));
