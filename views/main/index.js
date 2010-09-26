@@ -44,7 +44,7 @@ function deleteSelected(){
 		$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
 		}});
 		if(selected_feature.attributes.type=="decisions" || selected_feature.attributes.type=="states"){
-			selected_feature.text_multiline.destroy();
+			if(selected_feature.text_multiline != undefined) selected_feature.text_multiline.destroy();
 			for ( var i in selected_feature.from_lines)
 				selected_feature.from_lines[i].destroy();
 			for ( var i in selected_feature.to_lines)
@@ -130,7 +130,7 @@ function loadModel(){
 
 function createState(left, top, width, height, id, record){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Bounds(left, top+height, left+width, top).toGeometry(), {id: id, "type" : "states", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3}));
+	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Bounds(left, top+height, left+width, top).toGeometry(), {id: id, "type" : "states", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 2}));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
 	return features;
@@ -151,7 +151,7 @@ function getDecisionGeometry(left, top, width, height){
 
 function createDecision(left, top, width, height, id, record){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(getDecisionGeometry(left, top, width, height), {id: id, "type" : "decisions", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3}));
+	features.push(new OpenLayers.Feature.Vector(getDecisionGeometry(left, top, width, height), {id: id, "type" : "decisions", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 2}));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
 	return features;
@@ -225,9 +225,16 @@ function featureSelected(feature){
 		if(linking){
 			if(starting_feature == null){
 				starting_feature = feature;
+				starting_feature.style.fillColor = "#888888";
+				starting_feature.style.strokeWidth = 3;
+				vector_layer.drawFeature(starting_feature);
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 					connectWithLine(starting_feature, feature, d);
+					starting_feature.style.fillColor = "#eeeeee";
+					starting_feature.style.strokeWidth = 2;
+					vector_layer.drawFeature(starting_feature);
+					starting_feature = null;
 				}});
 			}
 		} else if(tool == "delete"){
@@ -365,15 +372,19 @@ function featureMove(feature, pix){
 	var centroid = getCentroid(feature);
 	for ( var i in feature.from_lines)
 	{
-		var vs = feature.from_lines[i].geometry.getVertices(true);
-		vs[0].move(centroid.x - vs[0].x, centroid.y - vs[0].y);
-		connection_layer.drawFeature(feature.from_lines[i]);
+		if(feature.from_lines[i].geometry != null){
+			var vs = feature.from_lines[i].geometry.getVertices(true);
+			vs[0].move(centroid.x - vs[0].x, centroid.y - vs[0].y);
+			connection_layer.drawFeature(feature.from_lines[i]);
+		}
 	}
 	for ( var i in feature.to_lines)
 	{
-		var vs = feature.to_lines[i].geometry.getVertices(true);
-		vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);	
-		connection_layer.drawFeature(feature.to_lines[i]);
+		if(feature.to_lines[i].geometry != null){
+			var vs = feature.to_lines[i].geometry.getVertices(true);
+			vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);	
+			connection_layer.drawFeature(feature.to_lines[i]);
+		}
 	}
 	centerTextIntoBlock(feature);
 }
