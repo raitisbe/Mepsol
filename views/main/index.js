@@ -70,7 +70,7 @@ function mapClick(){
 
 function mapMouseMove(e) {
 	if(tool=="unlink"){
-		var mousepos = map.getLonLatFromLayerPx(e.xy);
+		var mousepos = connection_layer.getLonLatFromViewPortPx(e.xy);
 		var ft1 = new OpenLayers.Geometry.Point(mousepos.lon, mousepos.lat);
 		var min_dist = 100;
 		var min_i = -1;
@@ -219,6 +219,12 @@ function setTool(which){
 	linking = false;
 }
 
+function resetSelectedFeature(){
+	starting_feature.style.fillColor = "#eeeeee";
+	starting_feature.style.strokeWidth = 2;
+	vector_layer.drawFeature(starting_feature);
+}
+
 function featureSelected(feature){
 	if(feature.attributes.type=="decisions" || feature.attributes.type=="states"){
 		last_feature_pos = feature.geometry.getBounds().toArray();
@@ -231,9 +237,7 @@ function featureSelected(feature){
 			} else {
 				$.ajax( { type : "POST", url : "?pg=connections&action=add", cache : false, data: {"id1": starting_feature.attributes.id, "id2": feature.attributes.id}, success : function(d){
 					connectWithLine(starting_feature, feature, d);
-					starting_feature.style.fillColor = "#eeeeee";
-					starting_feature.style.strokeWidth = 2;
-					vector_layer.drawFeature(starting_feature);
+					resetSelectedFeature();
 					starting_feature = null;
 				}});
 			}
