@@ -335,7 +335,7 @@ function updateDecision(){
 		selected_feature.attributes.record = {};
 	}
 	selected_feature.attributes.record.name = $(".decision_name input").val();
-	recalculateShapeSize(selected_feature);
+	recalculateDecisionSize(selected_feature);
 	recreateLabel(selected_feature);
 	var bounds = selected_feature.geometry.getBounds().toArray();
 	$.ajax( { type : "POST", url : "?pg=decisions&action=move", cache : false, data: {"id":selected_feature.attributes.id, "x":bounds[0], "y":bounds[3] - 40, "w":bounds[2]-bounds[0], "h":bounds[3]-bounds[1]}, success : function(d){}});

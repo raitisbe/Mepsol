@@ -230,7 +230,7 @@ function featureSelected(feature){
 					connectWithLine(starting_feature, feature, d);
 				}});
 			}
-		} else if(tool=="delete"){
+		} else if(tool == "delete"){
 			selected_feature = feature;
 			deleteSelected();
 		}
