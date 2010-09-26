@@ -31,6 +31,7 @@ $(document).ready(function() {
 function getAnswer(){
 	if($(".answers").length>0)
 		return $(".answers option:selected").val();
+	return null;
 }
 
 function goToNext(){
@@ -157,13 +158,24 @@ function createState(left, top, width, height, id, record){
 	return features;
 }
 
+function getDecisionGeometry(left, top, width, height){
+	return new OpenLayers.Geometry.LinearRing([
+		new OpenLayers.Geometry.Point(left + 10, top), 
+		new OpenLayers.Geometry.Point(left, top + 10),
+		new OpenLayers.Geometry.Point(left, top + height - 10), 
+		new OpenLayers.Geometry.Point(left + 10, top + height), 
+		new OpenLayers.Geometry.Point(left + width - 10, top + height), 
+		new OpenLayers.Geometry.Point(left + width, top + height - 10), 
+		new OpenLayers.Geometry.Point(left + width, top + 10), 
+		new OpenLayers.Geometry.Point(left + width - 10, top)
+	])
+}
+
 function createDecision(left, top, width, height, id, record){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(left, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top+height), new OpenLayers.Geometry.Point(left+width, top+height/2), new OpenLayers.Geometry.Point(left+width/2, top)])));
+	features.push(new OpenLayers.Feature.Vector(getDecisionGeometry(left, top, width, height), {id: id, "type" : "decisions", record : record}, {fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3}));
 	features[0].from_lines = [];
 	features[0].to_lines = [];
-	features[0].style={fillColor:"#eeeeee", opacity: 1, strokeColor: "#339933", strokeOpacity: 1, strokeWidth: 3};
-	features[0].attributes={id: id, "type" : "decisions", record : record};
 	return features;
 }
 
