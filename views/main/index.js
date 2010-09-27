@@ -162,7 +162,7 @@ function createDecision(left, top, width, height, id, record){
 
 function createSimpleLine(point1, point2){
 	var features = [];
-	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString([point1, point2])));
+	features.push(new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LineString([point1, point2]), {}, {}));
 	return features;
 }
 
