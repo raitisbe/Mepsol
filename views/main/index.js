@@ -39,6 +39,11 @@ $(document).ready(function() {
 	loadModel();
 })
 
+function destroyConnection(feature){
+	feature.attributes.arrow.destroy();
+	feature.destroy();
+}
+
 function deleteSelected(){
 	if(selected_feature!=null){
 		$.ajax( { type : "POST", url : "?pg=states&action=del", cache : false, data: {"id":selected_feature.attributes.id}, success : function(d){
@@ -46,9 +51,9 @@ function deleteSelected(){
 		if(selected_feature.attributes.type=="decisions" || selected_feature.attributes.type=="states"){
 			if(selected_feature.text_multiline != undefined) selected_feature.text_multiline.destroy();
 			for ( var i in selected_feature.from_lines)
-				selected_feature.from_lines[i].destroy();
+				destroyConnection(selected_feature.from_lines[i]);
 			for ( var i in selected_feature.to_lines)
-				selected_feature.to_lines[i].destroy();
+				destroyConnection(selected_feature.to_lines[i]);
 		}
 		if(active_popup)
 			map.removePopup(active_popup.popup);
