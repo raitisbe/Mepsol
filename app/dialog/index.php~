@@ -44,8 +44,7 @@ class dialog extends module {
 		if(sizeof($_SESSION["history_stack"])>1){
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
-			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);
-error_log("Open stack".print_r($_SESSION["open_stack"], true));		
+			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);	
 			$_SESSION["states_open"] = $_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1];
 			$this->setCurrentState($last, false);
 		}
@@ -110,8 +109,6 @@ error_log("Open stack".print_r($_SESSION["open_stack"], true));
 		if(!isset($_SESSION["open_stack"])) $_SESSION["open_stack"] = array();
 		if($store_in_history) $_SESSION["history_stack"][] = $id;
 		if($store_in_history) $_SESSION["open_stack"][] = $_SESSION["states_open"];
-		error_log("store ".$store_in_history);
-		error_log("Open stack".print_r($_SESSION["open_stack"], true));	
 	}
 
 	function openState($id){

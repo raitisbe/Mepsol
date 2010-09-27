@@ -77,7 +77,11 @@ function receiveState(d){
 	$("#video_cnt, #document_cnt, #info_cnt").html("");
 	for(i in d.video_links){
 		if(d.video_links[i]!=""){
-			$("#video_container").append("<a href='"+d.video_links[i]+"'>"+d.video_links[i]+"</a><br/>");
+			if(d.video_links[i].indexOf("www.youtube.com")>-1){
+				$("#video_container").append('<object width="480" height="385"><param name="movie" value="'+d.video_links[i]+'?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="'+d.video_links[i]+'?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>');
+			} else {
+				$("#video_container").append("<a href='"+d.video_links[i]+"'>"+d.video_links[i]+"</a><br/>");
+			}
 			$("#video_cnt").html(parseInt($("#video_cnt").html()==""?0:$("#video_cnt").html())+1);
 		}
 	}

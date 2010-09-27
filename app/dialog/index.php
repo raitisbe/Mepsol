@@ -97,9 +97,9 @@ class dialog extends module {
 		print_jason_records(false, "SELECT id, name, description_$this->language AS description, type, decision_type, input_type, question_$this->language AS question FROM states WHERE id = $id", "state");
 		print_jason_records(true, "SELECT connections.expr FROM connections INNER JOIN states ON states.id=connections.id2 WHERE id1 = $id", "answers");
 		$r = mysql_fetch_assoc(mysql_query("SELECT ".build_field_list(array("description", "info", "document", "video_link"), $this->language)." FROM states WHERE id = $id"));
-		echo ", \"video_links\":".json_encode(explode(";", $r["video_link"]));
-		echo ", \"documents\":".json_encode(explode(";", $r["document"]));
-		echo ", \"info\":".json_encode(explode(";", $r["info"]));
+		echo ", \"video_links\":".json_encode(explode("|", $r["video_link"]));
+		echo ", \"documents\":".json_encode(explode("|", $r["document"]));
+		echo ", \"info\":".json_encode(explode("|", $r["info"]));
 		echo "}";
 	}
 
