@@ -70,7 +70,7 @@ function mapClick(){
 
 function mapMouseMove(e) {
 	if(tool=="unlink"){
-		var mousepos = map.getLonLatFromLayerPx(e.xy);
+		var mousepos = connection_layer.getLonLatFromViewPortPx(e.xy);
 		var ft1 = new OpenLayers.Geometry.Point(mousepos.lon, mousepos.lat);
 		var min_dist = 100;
 		var min_i = -1;

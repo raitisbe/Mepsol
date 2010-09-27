@@ -308,6 +308,7 @@ function recalculateStateSize(feature){
 	for ( var i in vs){
 		vs[i].move(tvs[i].x - vs[i].x, tvs[i].y - vs[i].y);
 	}
+	recenterLineEndpoints(feature);
 	vector_layer.drawFeature(feature);
 }
 
@@ -321,6 +322,7 @@ function recalculateDecisionSize(feature){
 	for ( var i in vs){
 		vs[i].move(tvs[i].x - vs[i].x, tvs[i].y - vs[i].y);
 	}
+	recenterLineEndpoints(feature);
 	vector_layer.drawFeature(feature);
 }
 
@@ -372,7 +374,7 @@ function getCentroid(feature){
 	return new OpenLayers.Geometry.Point(bs[0] + (bs[2]-bs[0])/2, bs[3] + (bs[1]-bs[3]) / 2);
 }
 
-function featureMove(feature, pix){
+function recenterLineEndpoints(feature){
 	var centroid = getCentroid(feature);
 	for ( var i in feature.from_lines)
 	{
@@ -390,6 +392,10 @@ function featureMove(feature, pix){
 			connection_layer.drawFeature(feature.to_lines[i]);
 		}
 	}
+}
+
+function featureMove(feature, pix){
+	recenterLineEndpoints(feature);
 	centerTextIntoBlock(feature);
 }
 
