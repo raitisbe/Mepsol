@@ -12,16 +12,13 @@ class dialog extends module {
 				$_SESSION["open_stack"] = array();
 				$r = mysql_fetch_assoc($qr);
 				$id = $r["id"];
-				$this->setCurrentState($id);
 				$this->openState($id);
+				$this->setCurrentState($id);
 				$this->getCurrentState();
 				break;
 			case "advance":
-				error_log("ANSWER");
 				$this->answer();
-				error_log("ADVANCE");
 				$this->advance();
-				error_log("GETCUR");
 				$this->getCurrentState();
 				break;
 			case "step_back":
@@ -38,7 +35,6 @@ class dialog extends module {
 			if($_SESSION["states_open"][$i]["id"] == $_SESSION["current_state"]){
 				$_SESSION["states_open"][$i]["answer"] = $_GET["answer"];
 				$_SESSION["states_open"][$i]["advanced"] = false;
-				error_log("set ". print_r($_SESSION["states_open"][$i], true));
 				break;
 			}
 		}
@@ -49,8 +45,8 @@ class dialog extends module {
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
 			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);
+error_log("Open stack".print_r($_SESSION["open_stack"], true));		
 			$_SESSION["states_open"] = $_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1];
-			error_log(print_r($_SESSION["states_open"], true));
 			$this->setCurrentState($last, false);
 		}
 		$this->getCurrentState();
@@ -72,15 +68,11 @@ class dialog extends module {
 			$opened = false;
 			for($i=0; $i<sizeof($_SESSION["states_open"]); $i++){
 				if($_SESSION["states_open"][$i]["visited"] && !$_SESSION["states_open"][$i]["advanced"]){
-					error_log("get ". print_r($_SESSION["states_open"][$i], true));
 					$_SESSION["states_open"][$i]["advanced"] = true;
 					$qr = mysql_query("SELECT connections.expr, id2 FROM connections INNER JOIN states ON states.id=connections.id2 WHERE id1 = ".$_SESSION["states_open"][$i]["id"]);
 					while($r = mysql_fetch_array($qr)){
 						if($_SESSION["states_open"][$i]["type"]=="d"){
-							error_log("type fits");
 							if($_SESSION["states_open"][$i]["decision_type"]=="Input"){
-								error_log("decision_type fits");
-								error_log("answer".$_SESSION["states_open"][$i]["answer"]." vs ".$r["expr"]);
 								if($_SESSION["states_open"][$i]["answer"] != $r["expr"]) continue;
 								
 							}
@@ -118,6 +110,8 @@ class dialog extends module {
 		if(!isset($_SESSION["open_stack"])) $_SESSION["open_stack"] = array();
 		if($store_in_history) $_SESSION["history_stack"][] = $id;
 		if($store_in_history) $_SESSION["open_stack"][] = $_SESSION["states_open"];
+		error_log("store ".$store_in_history);
+		error_log("Open stack".print_r($_SESSION["open_stack"], true));	
 	}
 
 	function openState($id){

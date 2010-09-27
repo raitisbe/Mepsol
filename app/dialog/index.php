@@ -12,8 +12,8 @@ class dialog extends module {
 				$_SESSION["open_stack"] = array();
 				$r = mysql_fetch_assoc($qr);
 				$id = $r["id"];
-				$this->setCurrentState($id);
 				$this->openState($id);
+				$this->setCurrentState($id);
 				$this->getCurrentState();
 				break;
 			case "advance":
@@ -44,7 +44,7 @@ class dialog extends module {
 		if(sizeof($_SESSION["history_stack"])>1){
 			unset($_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1]);
 			$last = $_SESSION["history_stack"][sizeof($_SESSION["history_stack"])-1];
-			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);
+			unset($_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1]);	
 			$_SESSION["states_open"] = $_SESSION["open_stack"][sizeof($_SESSION["open_stack"])-1];
 			$this->setCurrentState($last, false);
 		}
