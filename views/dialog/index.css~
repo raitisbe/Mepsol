@@ -39,7 +39,7 @@ button{padding: 10px 30px; min-width: 200px; }
 
 #dialog_column{
 	position: absolute;
-	right: 40px;
+	right: 60px;
 	margin-left: 10px;
 	left: 30%;
 }
@@ -63,7 +63,8 @@ select.answers{
 }
 
 #accordion{
-	width: 50%;
+	width: 70%;
+	min-width: 500px;
 }
 
 hr{

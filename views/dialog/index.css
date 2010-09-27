@@ -63,7 +63,8 @@ select.answers{
 }
 
 #accordion{
-	width: 50%;
+	width: 70%;
+	min-width: 530px;
 }
 
 hr{
