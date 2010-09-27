@@ -24,17 +24,17 @@ class decisions extends module {
 				echo "<tr class='decision_input_type'><td>Input type: </td><td><select class='decision_input_type'><option value='DropDown'>DropDown</option><option value='Radio'>Radio</option><option value='Text'>Text</option></select></td></tr>";
 				echo "<tr class='decision_store'><td>Store answer in: </td><td><select class='decision_store_in'><option>Dont store</option><option>New variable</option></select></td></tr>";
 				echo "<tr class='decision_decisions'><td>Decisions: </td><td><table class='newspaper-table'><tr><th>Condition</th><th>Outcome</th></tr>";
-				$qr = mysql_query("SELECT connections.expr, states.name AS name FROM connections LEFT OUTER JOIN states ON states.id=connections.id2 WHERE id1=$id");
+				$qr = mysql_query("SELECT connections.expr, states.id, states.name AS name FROM connections LEFT OUTER JOIN states ON states.id=connections.id2 WHERE id1=$id");
 				$qrblocks = mysql_query("SELECT states.id, states.name AS name FROM states WHERE serviceid = $serviceid");
 				$blocks = array();
 				while($block = mysql_fetch_array($qrblocks))
 					$blocks[] = array('name'=>$block["name"], 'id'=>$block["id"]);
 				while($dec = mysql_fetch_array($qr)){
 					$condition = $dec["expr"];
-					$outcome = $dec["name"];
+					$outcome = $dec["id"];
 					echo "<tr class='decision_condition'><td><input type='text' name='condition[]' class='condition' value='$condition'/></td><td><select name='outcome[]' class='outcome'>";
 					foreach($blocks as $block)
-						echo '<option value="'.$block['id'].'"'.($outcome == $block?' selected' : '').'>'.$block['name'].'</output>';
+						echo '<option value="'.$block['id'].'"'.($outcome == $block['id']?' selected' : '').'>'.$block['name'].'</output>';
 					echo '</td></tr>';
 				}
 				echo "</table></td></tr>";
