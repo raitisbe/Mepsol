@@ -15,10 +15,11 @@
 	<select id="language" title="Language"><option>en</option><option>gr</option><option>lv</option></select>
 	<div id="map"></div>
 	<div id="dialog_column">
-		<div id="question_container"></div>
-		<br/><hr/>
+		<hr/>
 		<button id="previous">Previous</button><button id="next">Next</button>
 		<br/><hr/>
+		<div id="question_container"></div>
+		<br/>
 		<div id="accordion">
 			<div>
 				<h3><a href="#">Videos&nbsp;<span id="video_cnt"></span></a></h3>

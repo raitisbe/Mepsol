@@ -144,7 +144,7 @@ function loadModel(){
 			}
 		});
 		addLabels(vector_layer);
-		map.zoomToExtent(vector_layer.getDataExtent(), true);
+		//map.zoomToExtent(vector_layer.getDataExtent(), true);
 	}});
 }
 
@@ -211,13 +211,25 @@ function createLayers(){
 	);
 }
 
+function getCentroid(feature){
+	var bs = feature.geometry.getBounds().toArray();
+	return new OpenLayers.Geometry.Point(bs[0] + (bs[2]-bs[0])/2, bs[3] + (bs[1]-bs[3]) / 2);
+}
+
 function connectWithLine(feature1, feature2){
-	var line = createSimpleLine(feature1.geometry.getCentroid(), feature2.geometry.getCentroid());
+	var c1 = getCentroid(feature1);
+	var c2 = getCentroid(feature2);
+	var line = createSimpleLine(c1, c2);
 	line[0].from = feature1;
 	line[0].to = feature2;
+	var middle = new OpenLayers.Geometry.Point((c1.x + c2.x) / 2, (c1.y + c2.y) / 2);
 	feature1.from_lines.push(line[0]);
 	feature2.to_lines.push(line[0]);
 	connection_layer.addFeatures(line);
+	var arrow = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(middle.x - 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x + 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x, middle.y + 15)]), {}, {opacity: 1, fillColor: "#ee9900"});
+	rotateArrow(Math.atan2(c2.y - c1.y, c2.x - c1.x) * 180 / Math.PI - 90, arrow, middle);
+	line[0].attributes.arrow = arrow;
+	connection_layer.addFeatures([arrow]);
 }
 
 function addLabels(layer){
@@ -253,4 +265,12 @@ function centerTextIntoBlock(feature){
 		last_feature_pos = tmp;
 		vector_layer.redraw();
 	}
+}
+
+function rotateArrow(angle, arrow, middle){
+	var vs = arrow.geometry.getVertices();
+	vs[0].move((middle.x - 5) - vs[0].x, (middle.y - 7.5) - vs[0].y);
+	vs[1].move((middle.x + 5) - vs[1].x, (middle.y - 7.5) - vs[1].y);
+	vs[2].move((middle.x) - vs[2].x, (middle.y + 15) - vs[2].y);
+	arrow.geometry.rotate(angle, middle);
 }
