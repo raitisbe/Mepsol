@@ -213,6 +213,7 @@ function activateSelectors(highlight_tool){
 }
 
 function setTool(which){
+	resetSelectedFeature();
 	$("#tool_"+tool).removeClass("selected");
 	tool = which;
 	$("#tool_"+which).addClass("selected");

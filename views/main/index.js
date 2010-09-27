@@ -221,9 +221,11 @@ function setTool(which){
 }
 
 function resetSelectedFeature(){
-	starting_feature.style.fillColor = "#eeeeee";
-	starting_feature.style.strokeWidth = 2;
-	vector_layer.drawFeature(starting_feature);
+	if(starting_feature != null){
+		starting_feature.style.fillColor = "#eeeeee";
+		starting_feature.style.strokeWidth = 2;
+		vector_layer.drawFeature(starting_feature);
+	}
 }
 
 function featureSelected(feature){
