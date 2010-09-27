@@ -61,6 +61,7 @@ function deleteSelected(){
 function mapClick(){
 	if(tool == "unlink" && last_closest_line != -1){
 		$.ajax( { type : "POST", url : "?pg=connections&action=del", cache : false, data: {"id":connection_layer.features[last_closest_line].attributes.id}, success : function(d){
+			connection_layer.features[last_closest_line].attributes.arrow.destroy();
 			connection_layer.features[last_closest_line].destroy();
 			connection_layer.redraw();
 		}});
@@ -358,13 +359,21 @@ function updateDecision(){
 }
 
 function connectWithLine(feature1, feature2, id){
-	var line = createSimpleLine(getCentroid(feature1), getCentroid(feature2));
+	var c1 = getCentroid(feature1);
+	var c2 = getCentroid(feature2);
+	var line = createSimpleLine(c1, c2);
 	line[0].from = feature1;
 	line[0].to = feature2;
+	var middle = new OpenLayers.Geometry.Point((c1.x + c2.x) / 2, (c1.y + c2.y) / 2);
 	line[0].attributes.id = id;
 	feature1.from_lines.push(line[0]);
 	feature2.to_lines.push(line[0]);
 	connection_layer.addFeatures(line);
+	console.log(c1);
+	var arrow = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(middle.x - 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x + 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x, middle.y + 15)]), {}, {opacity: 1, fillColor: "#ee9900"});
+	rotateArrow(Math.atan2(c2.y - c1.y, c2.x - c1.x) * 180 / Math.PI - 90, arrow, middle);
+	line[0].attributes.arrow = arrow;
+	connection_layer.addFeatures([arrow]);
 }
 
 function featureMoved(feature){
@@ -377,6 +386,14 @@ function getCentroid(feature){
 	return new OpenLayers.Geometry.Point(bs[0] + (bs[2]-bs[0])/2, bs[3] + (bs[1]-bs[3]) / 2);
 }
 
+function rotateArrow(angle, arrow, middle){
+	var vs = arrow.geometry.getVertices();
+	vs[0].move((middle.x - 5) - vs[0].x, (middle.y - 7.5) - vs[0].y);
+	vs[1].move((middle.x + 5) - vs[1].x, (middle.y - 7.5) - vs[1].y);
+	vs[2].move((middle.x) - vs[2].x, (middle.y + 15) - vs[2].y);
+	arrow.geometry.rotate(angle, middle);
+}
+
 function recenterLineEndpoints(feature){
 	var centroid = getCentroid(feature);
 	for ( var i in feature.from_lines)
@@ -385,6 +402,8 @@ function recenterLineEndpoints(feature){
 			var vs = feature.from_lines[i].geometry.getVertices(true);
 			vs[0].move(centroid.x - vs[0].x, centroid.y - vs[0].y);
 			connection_layer.drawFeature(feature.from_lines[i]);
+			rotateArrow(Math.atan2(vs[1].y - vs[0].y, vs[1].x - vs[0].x) * 180 / Math.PI - 90, feature.from_lines[i].attributes.arrow, new OpenLayers.Geometry.Point((vs[1].x + vs[0].x) / 2, (vs[1].y + vs[0].y) / 2));
+			connection_layer.drawFeature(feature.from_lines[i].attributes.arrow);
 		}
 	}
 	for ( var i in feature.to_lines)
@@ -393,6 +412,8 @@ function recenterLineEndpoints(feature){
 			var vs = feature.to_lines[i].geometry.getVertices(true);
 			vs[vs.length - 1].move(centroid.x - vs[vs.length - 1].x, centroid.y - vs[vs.length - 1].y);	
 			connection_layer.drawFeature(feature.to_lines[i]);
+			rotateArrow(Math.atan2(vs[1].y - vs[0].y, vs[1].x - vs[0].x) * 180 / Math.PI - 90, feature.to_lines[i].attributes.arrow, new OpenLayers.Geometry.Point((vs[1].x + vs[0].x) / 2, (vs[1].y + vs[0].y) / 2));
+			connection_layer.drawFeature(feature.to_lines[i].attributes.arrow);
 		}
 	}
 }
