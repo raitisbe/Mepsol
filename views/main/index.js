@@ -86,10 +86,12 @@ function mapMouseMove(e) {
 		}
 		if(min_i!=last_closest_line){
 			for(var i in connection_layer.features){
-				connection_layer.features[i].style = {strokeColor: "#ee9900", strokeWidth: 1};
+				connection_layer.features[i].style.strokeColor = "#ee9900";
+				connection_layer.features[i].style.strokeWidth = 1;
 			}
 			if(min_i != -1)
-				connection_layer.features[min_i].style = {strokeColor: "#EE1111", strokeWidth: 3};
+				connection_layer.features[min_i].style.strokeColor = "#EE1111";
+				connection_layer.features[min_i].style.strokeWidth = 3;
 			connection_layer.redraw();
 			last_closest_line = min_i;
 		}
