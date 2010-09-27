@@ -369,7 +369,6 @@ function connectWithLine(feature1, feature2, id){
 	feature1.from_lines.push(line[0]);
 	feature2.to_lines.push(line[0]);
 	connection_layer.addFeatures(line);
-	console.log(c1);
 	var arrow = new OpenLayers.Feature.Vector(new OpenLayers.Geometry.LinearRing([new OpenLayers.Geometry.Point(middle.x - 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x + 5, middle.y - 7.5), new OpenLayers.Geometry.Point(middle.x, middle.y + 15)]), {}, {opacity: 1, fillColor: "#ee9900"});
 	rotateArrow(Math.atan2(c2.y - c1.y, c2.x - c1.x) * 180 / Math.PI - 90, arrow, middle);
 	line[0].attributes.arrow = arrow;
